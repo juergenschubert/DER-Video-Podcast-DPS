@@ -1,4 +1,3 @@
-### PowerCLI ova deployment.ps1
 $vCenter = "vc.vlab.local"
 $aveName = "ave-20-19.1"
 
