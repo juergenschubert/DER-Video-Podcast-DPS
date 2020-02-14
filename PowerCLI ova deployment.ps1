@@ -16,9 +16,13 @@ catch {
 #########
 # vCenter connection done
 #########
+#avamar
 $ovfFile = "S:\avamar\19_1\AVE-19.1.0.38.ova"
 #$ovfFile = "S:\avamar\19_2\AVE-19.2.0.155.ovf"
-
+#NetWorker
+#$ovfFile = "S:\networker\NW19.2 GA\NVE-19.2.0.112.ova"
+#PPDM
+#$ovfFile = "S:\PowerProtect\19.3.0-7\dellemc-ppdm-sw-19.3.0-7.ova"
 
 ###########
 # Create ovf object
@@ -62,14 +66,14 @@ Disconnect-VIServer -Server $vCenter -confirm:$false
 ##########
 #Get-VM
 #
-#Get-VM -Name “ave-20” | Get-NetworkAdapter
-##Get-VM -Name “ave-20” | Get-NetworkAdapter | Set-NetworkAdapter -NetworkName “OpaqueNetworkName”
+#Get-VM -Name $aveName | Get-NetworkAdapter
+##Get-VM -Name $aveName | Get-NetworkAdapter | Set-NetworkAdapter -NetworkName “OpaqueNetworkName”
 ##########
 ###vm status
 ##########
-#Get-VMGuest -vm ave-20-19.2
+#Get-VMGuest -vm $aveName
 ##########
 ### start/stop vms
 ##########
-#start-vm ave-20-19.2
-#shutdown-vmguest ave-20-19.2
+#start-vm $aveName
+#shutdown-vmguest ave-20-19.1
