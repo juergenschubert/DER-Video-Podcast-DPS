@@ -6,7 +6,7 @@ Hier findet ihr alle Information des DPS Podcast
 
 PowerCLI ova deployment.ps1  
 UseCase: need more than one ova deployment -> idea automate it wiht PowerShell  
-requiremeent:  
+%requirement: %  x 
 Window 10
 vmWare PowerCli installed    
 Run your PowerShell and install the PowerCLI  
