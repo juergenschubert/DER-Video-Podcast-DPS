@@ -17,8 +17,8 @@ more to read @ https://code.vmware.com/web/tool/11.5.0/vmware-powercli
 How to can be found: https://adamtheautomator.com/download-install-vmware-powercli/
 
 #### AVE Variablen  
-Name                                    Value  
-----                                    -----  
+Name                                      
+
 vami.NTP.Avamar_Virtual_Edition              
 NetworkMapping.VM Network                    
 vami.gatewayv6.Avamar_Virtual_Edition        
@@ -30,8 +30,8 @@ vami.searchpaths.Avamar_Virtual_Edition
 vami.FQDN.Avamar_Virtual_Edition  
 
 #### NVE Werte   
-Name                                                  Value  
-----                                                  -----  
+Name                                                    
+
 vami.gatewayv6.NetWorker_Virtual_Edition                     
 vami.DDBoostUsername.NetWorker_Virtual_Edition             
 vami.vCenterFQDN.NetWorker_Virtual_Edition                 
@@ -49,8 +49,8 @@ vami.NVEtimezone.NetWorker_Virtual_Edition
 vami.searchpaths.NetWorker_Virtual_Edition
 
 #### PPDM Werte
-Name                      Value  
-----                      -----  
+Name                        
+
 NetworkMapping.VM Network      
 vami.gateway.brs               
 vami.DNS.brs                   
