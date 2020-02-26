@@ -1,39 +1,39 @@
-PS C:\WINDOWS\system32\WindowsPowerShell\v1.0> $ovfConfig
-$ovfConfig.NetworkMapping.VM_Network
-$ovfConfig.NetworkMapping.VM_Network.Value = "VM Network"
-$ovfConfig.vami
-$ovfConfig.vami.NetWorker_Virtual_Edition
-$ovfConfig.vami.NetWorker_Virtual_Edition.ipv4
-$ovfConfig.vami.NetWorker_Virtual_Edition.ipv6
-$ovfConfig.vami.NetWorker_Virtual_Edition.gatewayv4
-$ovfConfig.vami.NetWorker_Virtual_Edition.gatewayv6
-$ovfConfig.vami.NetWorker_Virtual_Edition.DNS
-$ovfConfig.vami.NetWorker_Virtual_Edition.searchpaths
-$ovfConfig.vami.NetWorker_Virtual_Edition.FQDN
-$ovfConfig.vami.NetWorker_Virtual_Edition.NTP
-$ovfConfig.vami.NetWorker_Virtual_Edition.NVEtimezone
-$ovfConfig.vami.NetWorker_Virtual_Edition.DDIP
-$ovfConfig.vami.NetWorker_Virtual_Edition.DDBoostUseExistingUser
-$ovfConfig.vami.NetWorker_Virtual_Edition.DDBoostUsername
-$ovfConfig.vami.NetWorker_Virtual_Edition.vCenterFQDN
+PS C:\WINDOWS\system32\WindowsPowerShell\v1.0> $ovfConfig  
+$ovfConfig.NetworkMapping.VM_Network  
+$ovfConfig.NetworkMapping.VM_Network.Value = "VM Network"  
+$ovfConfig.vami   
+$ovfConfig.vami.NetWorker_Virtual_Edition  
+$ovfConfig.vami.NetWorker_Virtual_Edition.ipv4  
+$ovfConfig.vami.NetWorker_Virtual_Edition.ipv6  
+$ovfConfig.vami.NetWorker_Virtual_Edition.gatewayv4  
+$ovfConfig.vami.NetWorker_Virtual_Edition.gatewayv6  
+$ovfConfig.vami.NetWorker_Virtual_Edition.DNS  
+$ovfConfig.vami.NetWorker_Virtual_Edition.searchpaths  
+$ovfConfig.vami.NetWorker_Virtual_Edition.FQDN  
+$ovfConfig.vami.NetWorker_Virtual_Edition.NTP  
+$ovfConfig.vami.NetWorker_Virtual_Edition.NVEtimezone  
+$ovfConfig.vami.NetWorker_Virtual_Edition.DDIP  
+$ovfConfig.vami.NetWorker_Virtual_Edition.DDBoostUseExistingUser  
+$ovfConfig.vami.NetWorker_Virtual_Edition.DDBoostUsername  
+$ovfConfig.vami.NetWorker_Virtual_Edition.vCenterFQDN  
 
-====================================
-OvfConfiguration: NVE-19.2.0.112.ova
+====================================  
+OvfConfiguration: NVE-19.2.0.112.ova  
 
-   Properties:
-   -----------
-   NetworkMapping
-   vami
-
-
-Key                : NetworkMapping.VM Network
-Value              :
-DefaultValue       :
-OvfTypeDescription : string
-Description        : The virtual network the NVE's ethernet adapter will use
+   Properties:  
+   -----------  
+   NetworkMapping  
+   vami  
 
 
-NetWorker_Virtual_Edition : System.Object
+Key                : NetworkMapping.VM Network  
+Value              :  
+DefaultValue       :    
+OvfTypeDescription : string  
+Description        : The virtual network the NVE's ethernet adapter will use  
+
+
+NetWorker_Virtual_Edition : System.Object  
 
 
 ipv4                   :
