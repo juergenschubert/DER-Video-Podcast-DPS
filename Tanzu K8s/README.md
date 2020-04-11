@@ -15,4 +15,4 @@ Download des iso unter http://releases.ubuntu.com/18.04.4/
 Feste IP Adresse und hostname im DNS  
 
 - Hardware 15 für die VMs, CBT und more auf beide Ubuntus anwenden. Mehr findet ihr in
-VMWare FCD uuid and CBT enable.pdf.   
+VMWare FCD uuid and CBT enable.pdf.  Diese Änderungen und Hardware Versionen brauchen wir und die FCD zu verwenden und dann auch einen PVC anlegen zu können .... 
