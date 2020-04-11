@@ -12,4 +12,7 @@ get vSphere 6.7 U3 running (check Hardware 15) die wir brauchen um die Ubuntu Se
 ## Step 2
 Install 2 Ubuntu 18.04.4 LTS (Bionic Beaver)  
 Download des iso unter http://releases.ubuntu.com/18.04.4/  
-Feste IP Adresse und hostname im DNS   
+Feste IP Adresse und hostname im DNS  
+
+- Hardware 15 für die VMs, CBT und more auf beide Ubuntus anwenden. Mehr findet ihr in
+VMWare FCD uuid and CBT enable.pdf.   
