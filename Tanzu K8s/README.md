@@ -46,14 +46,21 @@ Power on the virtual machine.
 In the home directory of the virtual machine, verify that each disk having CBT enabled has also a vmname-ctk.vmdk file  
 **Install 2 Ubuntu 18.04.4 LTS (Bionic Beaver)**  
 Download des iso unter [http://releases.ubuntu.com/18.04.4/](download)  
+Von CD booten und Config durchspielen  
 Feste IP Adresse und hostname im DNS  
+**tanzu-m1.vlab.local** und **tanzu-s1.vlab.local**  
+Netzwerkconfig [https://www.thomas-krenn.com/de/wiki/Netzwerk-Konfiguration_Ubuntu_-_Netplan](https://www.thomas-krenn.com/de/wiki/Netzwerk-Konfiguration_Ubuntu_-_Netplan)   
+DNS Server eintragen   
+[https://datawookie.netlify.com/blog/2018/10/dns-on-ubuntu-18.04/](https://www.thomas-krenn.com/de/wiki/Netzwerk-Konfiguration_Ubuntu_-_Netplan)
+  
 
 - **Hardware 15** für die VMs, CBT und more auf beide Ubuntus anwenden. Mehr findet ihr in VMWare FCD uuid and CBT enable.pdf.  Diese Änderungen und Hardware Versionen brauchen wir und die FCD zu verwenden und dann auch einen PVC anlegen zu können ....
 
 Natürlich können wir das auch von innerhalb der VM aus machen das cbt enablen usw. 
 
 Tools die wir brauchen können findet ihr hier:  
-**govc** is a vSphere CLI built on top of govmomi and can be downloaded here: [https://github.com/vmware/govmomi/tree/master/govc]()
+**govc** is a vSphere CLI built on top of govmomi and can be downloaded here: [https://github.com/vmware/govmomi/tree/master/govc](https://fabianlee.org/2019/03/09/vmware-using-the-govc-cli-to-automate-vcenter-commands/)   
+More details on the command can be found at: [https://fabianlee.org/2019/03/09/vmware-using-the-govc-cli-to-automate-vcenter-commands/](https://fabianlee.org/2019/03/09/vmware-using-the-govc-cli-to-automate-vcenter-commands/)
 
 ---
 Setup steps required on all nodes The following section details the steps that are needed on both the master and worker nodes.
@@ -66,42 +73,52 @@ The following govc commands will set the disk.EnableUUID=1 on all nodes.
     # export GOVC_USERNAME=VC_Admin_User  
     # export GOVC_PASSWORD=VC_Admin_Passwd  
 
-    # govc ls  
-    /datacenter/vm  
-    /datacenter/network  
-    /datacenter/host  
-    /datacenter/datastore  
+    administrator@tanzu-m1:~$ govc ls
+    /Datacenter/vm
+    /Datacenter/network
+    /Datacenter/host
+    /Datacenter/datastore
+ 
 
 To retrieve all Node VMs, use the following command:  
   
-    # govc ls /<datacenter-name>/vm  
-    /datacenter/vm/k8s-node3  
-    /datacenter/vm/k8s-node4  
-    /datacenter/vm/k8s-node1  
-    /datacenter/vm/k8s-node2  
-    /datacenter/vm/k8s-master  
+    #  govc ls /Datacenter/vm
+    /Datacenter/vm/cr-194
+    /Datacenter/vm/tanzu-s1
+    /Datacenter/vm/tanzu-m1
+    /Datacenter/vm/NVE-19-2
+    /Datacenter/vm/SQL
+    /Datacenter/vm/Windows
+    /Datacenter/vm/Linux
+    /Datacenter/vm/Infrastructure
+    
 
 To use govc to enable Disk UUID, use the following command:  
   
-    # govc vm.change -vm '/datacenter/vm/k8s-node1' -e="disk.enableUUID=1"    
-    # govc vm.change -vm '/datacenter/vm/k8s-node2' -e="disk.enableUUID=1"  
-    # govc vm.change -vm '/datacenter/vm/k8s-node3' -e="disk.enableUUID=1"  
-    # govc vm.change -vm '/datacenter/vm/k8s-node4' -e="disk.enableUUID=1"  
-    # govc vm.change -vm '/datacenter/vm/k8s-master' -e="disk.enableUUID=1"  
-Further information on disk.enableUUID can be found in VMware Knowledgebase Article 52815.  
+    # govc vm.change -vm '/Datacenter/vm/tanzu-s1' -e="disk.enableUUID=1"    
+    # govc vm.change -vm '/Datacenter/vm/tanzu-m1' -e="disk.enableUUID=1"  
+ 
+ 
+ Further information on disk.enableUUID can be found in VMware Knowledgebase Article 52815.  
 
 ## Upgrade Virtual Machine Hardware  
 VM Hardware should be at version 15 or higher.  
 
-    # govc vm.upgrade -version=15 -vm '/datacenter/vm/k8s-node1'  
-    # govc vm.upgrade -version=15 -vm '/datacenter/vm/k8s-node2'  
-    # govc vm.upgrade -version=15 -vm '/datacenter/vm/k8s-node3'  
-    # govc vm.upgrade -version=15 -vm '/datacenter/vm/k8s-node4'  
-    # govc vm.upgrade -version=15 -vm '/datacenter/vm/k8s-master'  
+    # govc vm.upgrade -version=15 -vm '/Datacenter/vm/tanzu-s1'  
+    # govc vm.upgrade -version=15 -vm '/Datacenter/vm/tanzu-m1'
 
-Check the VM Hardware version after running the above command:  
+If you do get an error like:
+    
+    # govc: The attempted operation cannot be performed in the current state (Powered on).  
+
+Power the vm off  
+
+    # govc vm.power -off -force '/Datacenter/vm/tanzu-s1'  
+      Powering off VirtualMachine:vm-1296... OK  
+
+Check the VM Hardware version after running the above command:    
   
-    # govc vm.option.info '/datacenter/vm/k8s-node1' | grep HwVersion  
+    # govc vm.option.info '/Datacenter/vm/tanzu-s1' | grep HwVersion  
 HwVersion:           15  
 
 ---  
