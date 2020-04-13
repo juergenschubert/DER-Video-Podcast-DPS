@@ -59,10 +59,12 @@ DNS Server eintragen
 Natürlich können wir das auch von innerhalb der VM aus machen das cbt enablen usw. WIr arbeiten hier mit govc.
 
 Tools die wir brauchen können findet ihr hier:  
-**govc** is a vSphere CLI built on top of govmomi and can be downloaded here: [https://github.com/vmware/govmomi/tree/master/govc](https://fabianlee.org/2019/03/09/vmware-using-the-govc-cli-to-automate-vcenter-commands/)   
-More details on the command can be found at: [https://fabianlee.org/2019/03/09/vmware-using-the-govc-cli-to-automate-vcenter-commands/](https://fabianlee.org/2019/03/09/vmware-using-the-govc-cli-to-automate-vcenter-commands/)
+**govc** is a vSphere CLI built on top of govmomi and can be downloaded here: [GitHub download location for govc](https://github.com/vmware/govmomi/releases)  
+  
+[Using the govc CLI to automate vCenter commands](https://fabianlee.org/2019/03/09/vmware-using-the-govc-cli-to-automate-vcenter-commands/)  
 
-
+[More details on how govc works can be found here
+](https://github.com/juergenschubert/DER-Video-Podcast-DPS/blob/master/Tanzu%20K8s/govc%20howto.md)
 ## Setting up VMs in the Guest OS
 The next step is to install the necessary Kubernetes components on the Ubuntu OS virtual machines. Some components must be installed on all of the nodes. In other cases, some of the components need only be installed on the master, and in other cases, only the workers. In each case, where the components are installed is highlighted. All installation and configuration commands should be executed with root privilege. You can switch to the root environment using the "sudo su" command. 
 
