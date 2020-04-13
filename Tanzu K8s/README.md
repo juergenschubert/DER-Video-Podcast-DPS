@@ -6,10 +6,10 @@ Ziel ist es das k8s Clusten nach Aubau, dann mit DELL PowerProtect zu sichern
 ## Voraussetzunge von VMware     
 Wir brauchen ein 6.7 U2 vSphere um dann 2 Ubuntu Server, k8s.master1 und k8s.slave1 mit k8s zu versehen
 
-## Step 1
+## Step 1 vSphere 6.7 U3
 get vSphere 6.7 U3 running (check Hardware 15) die wir brauchen um die Ubuntu Server zu verwenden
 
-## Step 2
+## Step 2 Create both VM
 
 ### Create a new VM with the following properties :
 Compatibility : ESXi 6.7 Update 2 and later (VM version 15)
@@ -52,8 +52,8 @@ Feste IP Adresse und hostname im DNS
 
 Natürlich können wir das auch von innerhalb der VM aus machen das cbt enablen usw. 
 
-Tools die wir brauchen können findet ihr hier:
-govc is a vSphere CLI built on top of govmomi and can be downloaded here: [https://github.com/vmware/govmomi/tree/master/govc]()
+Tools die wir brauchen können findet ihr hier:  
+**govc** is a vSphere CLI built on top of govmomi and can be downloaded here: [https://github.com/vmware/govmomi/tree/master/govc]()
 
 ## Setting up VMs in the Guest OS
 The next step is to install the necessary Kubernetes components on the Ubuntu OS virtual machines. Some components must be installed on all of the nodes. In other cases, some of the components need only be installed on the master, and in other cases, only the workers. In each case, where the components are installed is highlighted. All installation and configuration commands should be executed with root privilege. You can switch to the root environment using the "sudo su" command. Setup steps required on all nodes The following section details the steps that are needed on both the master and worker nodes.
