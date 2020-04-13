@@ -49,14 +49,14 @@ Download des iso unter [http://releases.ubuntu.com/18.04.4/](download)
 Von CD booten und Config durchspielen  
 Feste IP Adresse und hostname im DNS  
 **tanzu-m1.vlab.local** und **tanzu-s1.vlab.local**  
-Netzwerkconfig [https://www.thomas-krenn.com/de/wiki/Netzwerk-Konfiguration_Ubuntu_-_Netplan](https://www.thomas-krenn.com/de/wiki/Netzwerk-Konfiguration_Ubuntu_-_Netplan)   
-DNS Server eintragen   
-[https://datawookie.netlify.com/blog/2018/10/dns-on-ubuntu-18.04/](https://www.thomas-krenn.com/de/wiki/Netzwerk-Konfiguration_Ubuntu_-_Netplan)
+
+[Netzwerkconfig Hilfe und Troubleshooting -_Netplan](https://www.thomas-krenn.com/de/wiki/Netzwerk-Konfiguration_Ubuntu_-_Netplan)   
+[Ubuntu DNS Server nslookup  ](https://www.thomas-krenn.com/de/wiki/Netzwerk-Konfiguration_Ubuntu_-_Netplan)
   
 
 - **Hardware 15** für die VMs, CBT und more auf beide Ubuntus anwenden. Mehr findet ihr in VMWare FCD uuid and CBT enable.pdf.  Diese Änderungen und Hardware Versionen brauchen wir und die FCD zu verwenden und dann auch einen PVC anlegen zu können ....
 
-Natürlich können wir das auch von innerhalb der VM aus machen das cbt enablen usw. WIr arbeiten hier mit govc.
+Natürlich können wir das auch von innerhalb der VM aus machen das cbt enablen usw. Wir arbeiten hier mit **govc**.
 
 Tools die wir brauchen können findet ihr hier:  
 **govc** is a vSphere CLI built on top of govmomi and can be downloaded here: [GitHub download location for govc](https://github.com/vmware/govmomi/releases)  
