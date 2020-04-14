@@ -81,6 +81,7 @@ SSH into all K8s worker nodes and disable swap on all nodes including master nod
     # apt install ca-certificates software-properties-common apt-transport-https curl -y  
 
     # curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+    OK
     # add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
     # apt update
     # apt install docker-ce=18.06.0~ce~3-0~ubuntu -y
@@ -106,6 +107,7 @@ SSH into all K8s worker nodes and disable swap on all nodes including master nod
   
     # sudo su
     # curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+    OK
     # cat <<EOF >/etc/apt/sources.list.d/kubernetes.list 
     deb https://apt.kubernetes.io/   kubernetes-xenial main   
     EOF
@@ -117,7 +119,80 @@ SSH into all K8s worker nodes and disable swap on all nodes including master nod
   
     # sudo su
     # sysctl net.bridge.bridge-nf-call-iptables=1
-   
+
+## Installing the Kubernetes master node(s)  
+
+    #sudo su
+***Where serviceSubnet: "10.98.48.0/21" is the CIDR/subnet mask and podSubnet: "10.244.0.0/16" is the default value. Note the "token:"in below as this will be RE-USED in Subsequent steps.***  
+
+    # tee /etc/kubernetes/kubeadminit.yaml >/dev/null <<EOF
+    apiVersion: kubeadm.k8s.io/v1beta1 
+    kind: InitConfiguration 
+    bootstrapTokens:
+           - groups:
+           - system:bootstrappers:kubeadm:default-node-token 
+           token: y7yaev.9dvwxx6ny4ef8vlq
+           ttl: 0s
+           usages:
+           - signing
+           - authentication
+    nodeRegistration:
+      kubeletExtraArgs:
+        cloud-provider: external
+    ---
+    apiVersion: kubeadm.k8s.io/v1beta1
+    kind: ClusterConfiguration
+    useHyperKubeImage: false
+    kubernetesVersion: v1.14.2 
+    networking:
+      serviceSubnet: "10.125.12.0/22"
+      podSubnet: "10.244.0.0/16"
+      etcd:
+        local:
+        imageRepository: "k8s.gcr.io"
+        imageTag: "3.3.10"
+      dns:
+        type: "CoreDNS"
+        imageRepository: "k8s.gcr.io"
+        imageTag: "1.5.0"
+      EOF
+Preserve the output the of below command, Note that the last part of the output provides the command to join the worker nodes to the master in this Kubernetes cluster. 
+
+    # kubeadm init --config /etc/kubernetes/kubeadminit.yaml  
+    
+    SAMPLE O/P:1.
+
+To start using your cluster, you need to run the following as a regular user:  
+
+    # mkdir -p $HOME/.kube
+    # sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config  
+    # sudo chown $(id -u):$(id -g) $HOME/.kube/config  
+    
+*At this stage, you may notice coredns pods remain in the pending state with FailedScheduling status. This is because the master node has taints that the coredns pods cannot tolerate. This is expected, as we have started kubelet with cloud-provider: external. Once the vSph ere Cloud Provider Interface is installed, and the nodes are initialized, the taints will be automatically removed from node, and that will allow scheduling of the coreDNS pods.*
+
+    # kubectl get pods --namespace=kube-system
+    NAME                                    READY   STATUS    RESTARTS   AGE
+    coredns-fb8b8dccf-q57f9                  0/1    Pending   0          87s
+    coredns-fb8b8dccf-scgp2                  0/1    Pending   0          87s 
+    etcd-k8s-master                          1/1    Pending   0          54s 
+    kube-apiserver-k8s-master                1/1    Running   0          39s
+    kube-controller-manager-k8s-master       1/1    Running   0          54s  
+    kube-proxy-rljk8                         1/1    Running   0          87s 
+    kube-scheduler-k8s-master                1/1    Running   0          37s
+    
+    
+    # kubectl describe pod coredns-fb8b8dccf-q57f9 --namespace=kube-system
+    .
+    .
+    Events:
+    Type     Reason          Age                  From             Message
+    ----     ------          ----                 ----             -------
+    Warning  FailedScheduling 7s (x21 over 2m1s) default-scheduler 0/1 nodes are available: 1 node(s) had taints that the pod didn't tolerate
+
+
+
+
+  
 **Weitere Tools die wir brauchen können findet ihr hier:**
 
 kubectl for other Operating Systems [https://kubernetes.io/docs/tasks/tools/install-kubectl/]()   
