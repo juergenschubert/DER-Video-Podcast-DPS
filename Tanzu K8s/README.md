@@ -141,21 +141,38 @@ SSH into all K8s worker nodes and disable swap on all nodes including master nod
         cloud-provider: external
     ---
     apiVersion: kubeadm.k8s.io/v1beta1
-    kind: ClusterConfiguration
-    useHyperKubeImage: false
-    kubernetesVersion: v1.14.2 
-    networking:
-      serviceSubnet: "10.125.12.0/22"
-      podSubnet: "10.244.0.0/16"
-      etcd:
-        local:
-        imageRepository: "k8s.gcr.io"
-        imageTag: "3.3.10"
-      dns:
-        type: "CoreDNS"
-        imageRepository: "k8s.gcr.io"
-        imageTag: "1.5.0"
-      EOF
+    # tee /etc/kubernetes/kubeadminit.yaml >/dev/null <<EOF
+apiVersion: kubeadm.k8s.io/v1beta1
+kind: InitConfiguration
+bootstrapTokens:
+       - groups:
+         - system:bootstrappers:kubeadm:default-node-token
+         token: y7yaev.9dvwxx6ny4ef8vlq
+         ttl: 0s
+         usages:
+         - signing
+         - authentication
+nodeRegistration:
+  kubeletExtraArgs:
+  cloud-provider: external
+---
+apiVersion: kubeadm.k8s.io/v1beta1
+kind: ClusterConfiguration
+useHyperKubeImage: false
+kubernetesVersion: v1.14.2
+networking:
+  serviceSubnet: "10.125.12.0/22"
+  podSubnet: "10.244.0.0/16"
+etcd:
+  local:
+    imageRepository: "k8s.gcr.io"
+    imageTag: "3.3.10"
+dns:
+  type: "CoreDNS"
+   imageRepository: "k8s.gcr.io"
+  imageTag: "1.5.0"
+EOF
+
 Preserve the output the of below command, Note that the last part of the output provides the command to join the worker nodes to the master in this Kubernetes cluster. 
 
     # kubeadm init --config /etc/kubernetes/kubeadminit.yaml  
