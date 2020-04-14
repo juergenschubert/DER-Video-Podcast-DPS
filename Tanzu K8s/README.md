@@ -24,7 +24,9 @@ Compatibility : ESXi 6.7 Update 2 and later (VM version 15)
 * Change Type VMware Paravirtual     
 * SCSI Bus Sharing None  
 
-### disk.EnableUUID=1  
+### Enabling disk UUID on virtual machines  
+
+disk.EnableUUID=1  
     - Power off the guest.  
     - Select the guest and select Edit Settings.  
     - Select the Options tab on top.  
