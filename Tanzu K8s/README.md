@@ -1,3 +1,6 @@
+#Agenda
+hier kommt dann mal de Agenda vielleicht mit Sprungmarken ???  
+
 # Tanzu Kubernetes Space
 
 wir wollen hier ein K8s Cluster aufbauen, welches mit vSphere Tanzu diese FCD disken benutzt und als Kubernetes ein PVC hat.  
