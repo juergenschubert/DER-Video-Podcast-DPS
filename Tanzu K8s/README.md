@@ -126,22 +126,6 @@ SSH into all K8s worker nodes and disable swap on all nodes including master nod
 ***Where serviceSubnet: "10.98.48.0/21" is the CIDR/subnet mask and podSubnet: "10.244.0.0/16" is the default value. Note the "token:"in below as this will be RE-USED in Subsequent steps.***  
 
     # tee /etc/kubernetes/kubeadminit.yaml >/dev/null <<EOF
-    apiVersion: kubeadm.k8s.io/v1beta1 
-    kind: InitConfiguration 
-    bootstrapTokens:
-           - groups:
-           - system:bootstrappers:kubeadm:default-node-token 
-           token: y7yaev.9dvwxx6ny4ef8vlq
-           ttl: 0s
-           usages:
-           - signing
-           - authentication
-    nodeRegistration:
-      kubeletExtraArgs:
-        cloud-provider: external
-    ---
-    apiVersion: kubeadm.k8s.io/v1beta1
-    # tee /etc/kubernetes/kubeadminit.yaml >/dev/null <<EOF
 apiVersion: kubeadm.k8s.io/v1beta1
 kind: InitConfiguration
 bootstrapTokens:
