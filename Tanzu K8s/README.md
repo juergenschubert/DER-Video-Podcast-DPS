@@ -68,15 +68,54 @@ Tools die wir brauchen können findet ihr hier:
 ## Setting up VMs in the Guest OS
 The next step is to install the necessary Kubernetes components on the Ubuntu OS virtual machines. Some components must be installed on all of the nodes. In other cases, some of the components need only be installed on the master, and in other cases, only the workers. In each case, where the components are installed is highlighted. All installation and configuration commands should be executed with root privilege. You can switch to the root environment using the "sudo su" command. 
 
-* Disable Swap (Both master and worker )
-SSH into all K8s worker nodes and disable swap on all nodes including master node. This is a prerequisite for kubeadm.  
-   # sudo su  
-   # swapoff -a  
-   # vi /etc/fstab ... remove any swap entry from   this file ...
+### Disable Swap (Both master and worker)
+SSH into all K8s worker nodes and disable swap on all nodes including master node. This is a prerequisite for kubeadm.    
+
+    # sudo su  
+    # swapoff -a  
+    # vi /etc/fstab ... remove any swap entry from   this file ...
 
 
+### Install Docker CE (Both master and worker )
+    # sudo su
+    # apt update
+    # apt install ca-certificates software-properties-common apt-transport-https curl -y  
 
-
+    # curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+    # add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable" apt update
+    # apt install docker-ce=18.06.0~ce~3-0~ubuntu -y
+    # tee /etc/docker/daemon.json >/dev/null <<EOF
+    {
+     "exec-opts": ["native.cgroupdriver=systemd"], "log-driver": "json-file",
+     "log-opts": {
+     "max-size": "100m" },
+     "storage-driver": "overlay2" }
+    EOF
+    # mkdir -p /etc/systemd/system/docker.service.d
+    # systemctl daemon-reload
+    # systemctl restart docker
+    # systemctl status docker
+    docker.service - Docker Application Container Engine
+    Loaded: loaded (/lib/systemd/system/docker.service; enabled; vendor preset: enabled)    Active: active (running) since Fri 2019-09-06 12:37:27 UTC; 4min 15s ago13. 
+    # docker info | egrep "Server Version|Cgroup Driver" 
+    Server Version: 18.06.0-ce
+    Cgroup Driver: systemd
+### Install Kubelet, Kubectl, Kubeadm
+(Both master and worker )  
+  
+    # sudo su
+    # curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+    # cat <<EOF >/etc/apt/sources.list.d/kubernetes.list 
+    deb https://apt.kubernetes.io/   kubernetes-xenial main   
+    EOF
+    # apt update
+    # apt install -qy kubeadm=1.14.2-00 kubelet=1.14.2-00 kubectl=1.14.2-00 6. 
+    # apt-mark hold kubelet kubeadm kubectl
+### Setup step for flannel (Pod Networking)
+(Both master and worker )  
+  
+    # sudo su
+    # sysctl net.bridge.bridge-nf-call-iptables=1
    
 **Weitere Tools die wir brauchen können findet ihr hier:**
 
