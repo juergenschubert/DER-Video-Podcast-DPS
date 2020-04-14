@@ -10,6 +10,7 @@ Wir brauchen ein 6.7 U2 vSphere um dann 2 Ubuntu Server, k8s.master1 und k8s.sla
 get vSphere 6.7 U3 running (check Hardware 15) die wir brauchen um die Ubuntu Server zu verwenden
 
 ## Step 2 Create both VM
+I do name them **tanzu-m1** und **tanzu-s1**, m1 for master and s1 for the first slave :-)  
 
 ### Create a new VM with the following properties :
 Compatibility : ESXi 6.7 Update 2 and later (VM version 15)
