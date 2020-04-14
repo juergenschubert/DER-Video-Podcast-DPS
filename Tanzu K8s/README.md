@@ -126,48 +126,59 @@ SSH into all K8s worker nodes and disable swap on all nodes including master nod
 ***Where serviceSubnet: "10.98.48.0/21" is the CIDR/subnet mask and podSubnet: "10.244.0.0/16" is the default value. Note the "token:"in below as this will be RE-USED in Subsequent steps.***  
 
     # tee /etc/kubernetes/kubeadminit.yaml >/dev/null <<EOF
-    apiVersion: kubeadm.k8s.io/v1beta1
-    kind: InitConfiguration
-    bootstrapTokens:
-           - groups:
-             - system:bootstrappers:kubeadm:default-node-token
-             token: y7yaev.9dvwxx6ny4ef8vlq
-             ttl: 0s
-             usages:
-             - signing
-             - authentication
-    nodeRegistration:
-      kubeletExtraArgs:
-      cloud-provider: external
-    ---
-    apiVersion: kubeadm.k8s.io/v1beta1
-    kind: ClusterConfiguration
-    useHyperKubeImage: false
-    kubernetesVersion: v1.14.2
-    networking:
-      serviceSubnet: "10.125.12.0/22"
-      podSubnet: "10.244.0.0/16"
-    etcd:
-      local:
-        imageRepository: "k8s.gcr.io"
-        imageTag: "3.3.10"
-    dns:
-      type: "CoreDNS"
-       imageRepository: "k8s.gcr.io"
-      imageTag: "1.5.0"
+    apiVersion: kubeadm.k8s.io/v1beta1  
+    kind: InitConfiguration  
+    bootstrapTokens:  
+           - groups:  
+            - system:bootstrappers:kubeadm:default-node-token  
+            token: y7yaev.9dvwxx6ny4ef8vlq  
+            ttl: 0s  
+            usages:  
+            - signing  
+            - authentication  
+    nodeRegistration:  
+      kubeletExtraArgs:  
+        cloud-provider: external  
+    ---  
+    apiVersion: kubeadm.k8s.io/v1beta1  
+    kind: ClusterConfiguration  
+    useHyperKubeImage: false  
+    kubernetesVersion: v1.14.2  
+    networking:  
+      serviceSubnet: "10.96.0.0/12"  
+      podSubnet: "10.244.0.0/16"  
+    etcd:  
+      local:  
+        imageRepository: "k8s.gcr.io"  
+        imageTag: "3.3.10"  
+    dns:  
+      type: "CoreDNS"  
+      imageRepository: "k8s.gcr.io"  
+      imageTag: "1.5.0"  
     EOF
 
 Preserve the output the of below command, Note that the last part of the output provides the command to join the worker nodes to the master in this Kubernetes cluster. 
 
     # kubeadm init --config /etc/kubernetes/kubeadminit.yaml  
     
-    SAMPLE O/P:1.
+ 
+    Your Kubernetes control-plane has initialized successfully!
 
-To start using your cluster, you need to run the following as a regular user:  
+    To start using your cluster, you need to run the following as a regular user:
 
-    # mkdir -p $HOME/.kube
-    # sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config  
-    # sudo chown $(id -u):$(id -g) $HOME/.kube/config  
+      mkdir -p $HOME/.kube
+      sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+      sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+    You should now deploy a pod network to the cluster.
+    Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+      https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+    Then you can join any number of worker nodes by running the following on each as root:
+
+    # kubeadm join 192.168.1.155:6443 --token y7yaev.9dvwxx6ny4ef8vlq \
+    --discovery-token-ca-cert-hash sha256:a40ed74295afe9514b36d3c389b4b803fe8f633c65928282c813746b57945d63
+ 
     
 *At this stage, you may notice coredns pods remain in the pending state with FailedScheduling status. This is because the master node has taints that the coredns pods cannot tolerate. This is expected, as we have started kubelet with cloud-provider: external. Once the vSph ere Cloud Provider Interface is installed, and the nodes are initialized, the taints will be automatically removed from node, and that will allow scheduling of the coreDNS pods.*
 
@@ -189,10 +200,76 @@ To start using your cluster, you need to run the following as a regular user:
     Type     Reason          Age                  From             Message
     ----     ------          ----                 ----             -------
     Warning  FailedScheduling 7s (x21 over 2m1s) default-scheduler 0/1 nodes are available: 1 node(s) had taints that the pod didn't tolerate
+    
+    End your day or just take a break as this will take some minutes otherwise your follow on step will fail. Taking a while
 
+## Install flannel pod overlay networking
+The next step that needs to be carried out on the master node is that the flannel pod overlay network must be installed so the pods can communicate with
+each other. ( ON MASTER AS REGULAR USER )  
 
+    # kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/62e44c867a2846fefb68bd5f178daf4da3095ccb/Documentation/kube-flannel.yml
+    podsecuritypolicy.extensions/psp.flannel.unprivileged created
+    clusterrole.rbac.authorization.k8s.io/flannel created
+    clusterrolebinding.rbac.authorization.k8s.io/flannel created
+    serviceaccount/flannel created
+    configmap/kube-flannel-cfg created
+    daemonset.extensions/kube-flannel-ds-amd64 created
+    daemonset.extensions/kube-flannel-ds-arm64 created
+    daemonset.extensions/kube-flannel-ds-arm created
+    daemonset.extensions/kube-flannel-ds-ppc64le created
+    daemonset.extensions/kube-flannel-ds-s390x created
 
+At this point, you can check if the overlay network is deployed.  
 
+    # kubectl get pods --namespace=kube-system
+
+    NAME READY STATUS RESTARTS AGE
+    coredns-6557d7f7d6-9s7sm 0/1 Pending 0 107s
+    coredns-6557d7f7d6-wgxtq 0/1 Pending 0 107s
+    etcd-k8s-mstr 1/1 Running 0 70s
+    kube-apiserver-k8s-mstr 1/1 Running 0 54s
+    kube-controller-manager-k8s-mstr 1/1 Running 0 53s
+    kube-flannel-ds-amd64-pm9m9 1/1 Running 0 11s
+    kube-proxy-8dfm9 1/1 Running 0 107s
+    kube-scheduler-k8s-mstr 1/1 Running 0 49s
+
+##Export the master node configuration to worker nodes
+Finally, the master node configuration needs to be exported as it is used by the worker nodes wishing to join to the master.  
+
+     # kubectl -n kube-public get configmap cluster-info -o jsonpath='{.data.kubeconfig}' > discovery.yaml
+
+The discovery.yaml file will need to be copied to /etc/kubernetes/discovery.yaml on each of the worker nodes.
+
+##Installing the Kubernetes worker node(s)
+
+    # sudo su
+    # tee /etc/kubernetes/kubeadminitworker.yaml >/dev/null <<EOF
+    apiVersion: kubeadm.k8s.io/v1beta1 caCertPath: /etc/kubernetes/pki/ca.crt discovery:
+    file:
+    kubeConfigPath: /etc/kubernetes/discovery.yaml
+             timeout: 5m0s
+    tlsBootstrapToken: y7yaev.9dvwxx6ny4ef8vlq kind: JoinConfiguration
+    nodeRegistration:
+    criSocket: /var/run/dockershim.sock kubeletExtraArgs: 
+    cloud-provider: external EOF
+    
+**copy the discovery.yaml to your local machine with scp. to /etc/kubernetes/discovery.yaml**
+
+    # kubeadm join --config /etc/kubernetes/kubeadminitworker.yaml
+    
+        
+**Go to your Master Server**
+ 
+    # kubectl get nodes -o wide ( In Master )
+
+    # root@tanzu-m1:/home/administrator# kubectl get nodes
+    NAME       STATUS   ROLES    AGE     VERSION
+    tanzu-m1   Ready    master   65m     v1.14.2
+    tanzu-s1   Ready    <none>   3m28s   v1.14.2
+     
+  
+  
+ -----
   
 **Weitere Tools die wir brauchen können findet ihr hier:**
 
