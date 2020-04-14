@@ -63,8 +63,7 @@ Tools die wir brauchen können findet ihr hier:
   
 [Using the govc CLI to automate vCenter commands](https://fabianlee.org/2019/03/09/vmware-using-the-govc-cli-to-automate-vcenter-commands/)  
 
-[More details on how govc works can be found here
-](https://github.com/juergenschubert/DER-Video-Podcast-DPS/blob/master/Tanzu%20K8s/govc%20howto.md)
+[Detailed documentation on deployment of govc](https://github.com/juergenschubert/DER-Video-Podcast-DPS/blob/master/Tanzu%20K8s/govc%20howto.md)  
 ## Setting up VMs in the Guest OS
 The next step is to install the necessary Kubernetes components on the Ubuntu OS virtual machines. Some components must be installed on all of the nodes. In other cases, some of the components need only be installed on the master, and in other cases, only the workers. In each case, where the components are installed is highlighted. All installation and configuration commands should be executed with root privilege. You can switch to the root environment using the "sudo su" command. 
 
@@ -76,13 +75,14 @@ SSH into all K8s worker nodes and disable swap on all nodes including master nod
     # vi /etc/fstab ... remove any swap entry from   this file ...
 
 
-### Install Docker CE (Both master and worker )
+## Install Docker CE (Both master and worker )
     # sudo su
     # apt update
     # apt install ca-certificates software-properties-common apt-transport-https curl -y  
 
     # curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-    # add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable" apt update
+    # add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+    # apt update
     # apt install docker-ce=18.06.0~ce~3-0~ubuntu -y
     # tee /etc/docker/daemon.json >/dev/null <<EOF
     {
@@ -96,11 +96,12 @@ SSH into all K8s worker nodes and disable swap on all nodes including master nod
     # systemctl restart docker
     # systemctl status docker
     docker.service - Docker Application Container Engine
-    Loaded: loaded (/lib/systemd/system/docker.service; enabled; vendor preset: enabled)    Active: active (running) since Fri 2019-09-06 12:37:27 UTC; 4min 15s ago13. 
+    Loaded: loaded (/lib/systemd/system/docker.service; enabled; vendor preset: enabled)    
+    Active: active (running) since Fri 2019-09-06 12:37:27 UTC; 4min 15s ago13. 
     # docker info | egrep "Server Version|Cgroup Driver" 
     Server Version: 18.06.0-ce
     Cgroup Driver: systemd
-### Install Kubelet, Kubectl, Kubeadm
+## Install Kubelet, Kubectl, Kubeadm
 (Both master and worker )  
   
     # sudo su
@@ -109,10 +110,10 @@ SSH into all K8s worker nodes and disable swap on all nodes including master nod
     deb https://apt.kubernetes.io/   kubernetes-xenial main   
     EOF
     # apt update
-    # apt install -qy kubeadm=1.14.2-00 kubelet=1.14.2-00 kubectl=1.14.2-00 6. 
+    # apt install -qy kubeadm=1.14.2-00 kubelet=1.14.2-00 kubectl=1.14.2-00
     # apt-mark hold kubelet kubeadm kubectl
-### Setup step for flannel (Pod Networking)
-(Both master and worker )  
+## Setup step for flannel 
+(Pod Networking for both master and worker )  
   
     # sudo su
     # sysctl net.bridge.bridge-nf-call-iptables=1

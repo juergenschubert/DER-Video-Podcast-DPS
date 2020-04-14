@@ -1,9 +1,11 @@
 #govc how to use
 
-Tools die wir brauchen können findet ihr hier:  
-**govc** is a vSphere CLI built on top of govmomi and can be downloaded here: [https://github.com/vmware/govmomi/tree/master/govc](https://fabianlee.org/2019/03/09/vmware-using-the-govc-cli-to-automate-vcenter-commands/)   
+Govc, the CLI tool for vsphere communication:  
+**govc** is a vSphere CLI built on top of govmomi and can be downloaded here:  
+[GitHub download location for govc](https://github.com/vmware/govmomi/releases)  
+  
 Download und copy to your Ubuntu Server, both and run the config mentioned below   
-[https://fabianlee.org/2019/03/09/vmware-using-the-govc-cli-to-automate-vcenter-commands/](https://fabianlee.org/2019/03/09/vmware-using-the-govc-cli-to-automate-vcenter-commands/)
+[govc examples and how to use ](https://fabianlee.org/2019/03/09/vmware-using-the-govc-cli-to-automate-vcenter-commands/)
 
 
 Setup steps required on all nodes The following section details the steps that are needed on both the master and worker nodes. After the installation you should get it done and can go ahead with:  
