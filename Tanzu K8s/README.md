@@ -364,7 +364,9 @@ Just to avoid typos is the reson to provide them.
      /etc/kubernetes/kubeadminit.yaml  kubeadminit.yaml
 
  ---
-  
+  WORK in GROGRESS - Hier kommt noch was ! WANN?
+  Sei geduldig!!!
+ ---
 **Weitere Tools die wir brauchen können findet ihr hier:**
 
 kubectl for other Operating Systems [https://kubernetes.io/docs/tasks/tools/install-kubectl/]()   
