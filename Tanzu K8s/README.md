@@ -1,10 +1,24 @@
 
-#Agenda  
+#Agenda 
+ 
 ```
 Voraussetzunge von VMware  
-   Step 1 vSphere 6.7 U3
-          vsphere and host  
-hier kommt dann mal de Agenda vielleicht mit Sprungmarken ???  
+   Step 1 vSphere 6.7 U3 
+   Step 2 Create both VM  
+     Enabling disk UUID
+     enable CBT
+   Install Ubuntu
+   Setting up VMs in the Guest OS  
+     Disable Swap
+   Install Docker CE
+   Install Kubelet, Kubectl, Kubeadm
+   Pod Networking - flanel
+   Installing the Kubernetes
+     master node
+       Install flannel pod overlay networking
+     worker node
+     
+
 ```
 
 # Tanzu Kubernetes Space
@@ -13,13 +27,13 @@ wir wollen hier ein K8s Cluster aufbauen, welches mit vSphere Tanzu diese FCD di
 Ziel ist es das k8s Clusten nach Aufbau, dann mit DELL PowerProtect zu sichern
 
 ## Voraussetzunge von VMware     
-Wir brauchen ein 6.7 U2 vSphere um dann 2 Ubuntu Server, k8s.master1 und k8s.slave1 mit k8s zu versehen
+Wir brauchen ein 6.7 U2 vSphere um dann 2 Ubuntu Server, tanzu-m1 und tanzu.s1 mit k8s zu versehen
 
 ## Step 1 vSphere 6.7 U3
 get vSphere 6.7 U3 running (check Hardware 15) die wir brauchen um die Ubuntu Server zu verwenden
 
 ## Step 2 Create both VM
-I do name them **tanzu-m1** und **tanzu-s1**, m1 for master and s1 for the first slave. Logins are administrator and root on all server :-)  
+I do name them **tanzu-m1** und **tanzu-s1**, m1 for master and s1 for the first worker. Logins are administrator and root on all server :-)  Just in case you do see, my passwords all all Password123!.
 
 ### Create a new VM with the following properties :
 Compatibility : ESXi 6.7 Update 2 and later (VM version 15)
@@ -29,6 +43,8 @@ Compatibility : ESXi 6.7 Update 2 and later (VM version 15)
 * SCSI controller 0 VMware Paravirtual    
 * Change Type VMware Paravirtual     
 * SCSI Bus Sharing None  
+
+I have used smaller with 1 CPU and 10GB of disk. So fare no issues. 
 
 ### Enabling disk UUID on virtual machines  
 
@@ -56,17 +72,8 @@ Power on the guest.
 Note: scsi0:0 in scsi0:0.ctkEnabled indicates the SCSI device assigned to the hard disk that is added to the virtual machine. Every hard disk added to the virtual machine is given a SCSI device that appears similar to scsi0:0, scsi0:1, or scsi 1:1. CBT is enabled (or disabled) individually on each disk.  
 Power on the virtual machine.  
 In the home directory of the virtual machine, verify that each disk having CBT enabled has also a vmname-ctk.vmdk file  
-**Install 2 Ubuntu 18.04.4 LTS (Bionic Beaver)**  
-Download des iso unter [http://releases.ubuntu.com/18.04.4/](download)  
-Von CD booten und Config durchspielen  
-Feste IP Adresse und hostname im DNS  
-**tanzu-m1.vlab.local** und **tanzu-s1.vlab.local**  
 
-[Netzwerkconfig Hilfe und Troubleshooting -_Netplan](https://www.thomas-krenn.com/de/wiki/Netzwerk-Konfiguration_Ubuntu_-_Netplan)   
-[Ubuntu DNS Server nslookup  ](https://www.thomas-krenn.com/de/wiki/Netzwerk-Konfiguration_Ubuntu_-_Netplan)
-  
-
-- **Hardware 15** für die VMs, CBT und more auf beide Ubuntus anwenden. Mehr findet ihr in VMWare FCD uuid and CBT enable.pdf.  Diese Änderungen und Hardware Versionen brauchen wir und die FCD zu verwenden und dann auch einen PVC anlegen zu können ....
+**Hardware 15** für die VMs, CBT und more auf beide Ubuntus anwenden. Mehr findet ihr in VMWare FCD uuid and CBT enable.pdf.  Diese Änderungen und Hardware Versionen brauchen wir und die FCD zu verwenden und dann auch einen PVC anlegen zu können ....
 
 Natürlich können wir das auch von innerhalb der VM aus machen das cbt enablen usw. Wir arbeiten hier mit **govc**.
 
@@ -75,7 +82,17 @@ Tools die wir brauchen können findet ihr hier:
   
 [Using the govc CLI to automate vCenter commands](https://fabianlee.org/2019/03/09/vmware-using-the-govc-cli-to-automate-vcenter-commands/)  
 
-[Detailed documentation on deployment of govc](https://github.com/juergenschubert/DER-Video-Podcast-DPS/blob/master/Tanzu%20K8s/govc%20howto.md)  
+[Detailed documentation on deployment of govc](https://github.com/juergenschubert/DER-Video-Podcast-DPS/blob/master/Tanzu%20K8s/govc%20howto.md)   
+
+##Install Ubuntu 18.04.4 LTS (Bionic Beaver) 
+Download des iso unter [http://releases.ubuntu.com/18.04.4/](download)  
+Von CD booten und Config durchspielen  
+Feste IP Adresse und hostname im DNS  
+**tanzu-m1.vlab.local** und **tanzu-s1.vlab.local**  
+
+[Netzwerkconfig Hilfe und Troubleshooting -_Netplan](https://www.thomas-krenn.com/de/wiki/Netzwerk-Konfiguration_Ubuntu_-_Netplan)   
+[Ubuntu DNS Server nslookup Hilfe](https://www.thomas-krenn.com/de/wiki/Netzwerk-Konfiguration_Ubuntu_-_Netplan)
+
 ## Setting up VMs in the Guest OS
 The next step is to install the necessary Kubernetes components on the Ubuntu OS virtual machines. Some components must be installed on all of the nodes. In other cases, some of the components need only be installed on the master, and in other cases, only the workers. In each case, where the components are installed is highlighted. All installation and configuration commands should be executed with root privilege. You can switch to the root environment using the "sudo su" command. 
 
@@ -129,7 +146,7 @@ SSH into all K8s worker nodes and disable swap on all nodes including master nod
     # apt update
     # apt install -qy kubeadm=1.14.2-00 kubelet=1.14.2-00 kubectl=1.14.2-00
     # apt-mark hold kubelet kubeadm kubectl
-## Setup step for flannel 
+## Pod Networking - Setup flannel 
 (Pod Networking for both master and worker )  
   
     # sudo su
