@@ -286,15 +286,15 @@ The discovery.yaml file will need to be copied to /etc/kubernetes/discovery.yaml
     tanzu-m1   Ready    master   65m     v1.14.2
     tanzu-s1   Ready    <none>   3m28s   v1.14.2
      
- ----
- yaml files are alos included into this repository. The yaml I am talking about are these starting with # tee... :  
+ ---
+**yaml files are alos included into this repository. The yaml I am talking about are these starting with # tee...**  
  
      location                           name  
      -------                            -------
      /etc/docker/daemon.json           daemon.json  
      /etc/kubernetes/kubeadminit.yaml  kubeadminit.yaml
 
- -----
+ ---
   
 **Weitere Tools die wir brauchen können findet ihr hier:**
 
