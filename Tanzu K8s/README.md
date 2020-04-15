@@ -34,7 +34,7 @@ Wir brauchen ein 6.7 U2 vSphere um dann 2 Ubuntu Server, tanzu-m1 und tanzu.s1 m
 get vSphere 6.7 U3 running (check Hardware 15) die wir brauchen um die Ubuntu Server zu verwenden
 
 ## Step 2 Create both VM
-I do name them **tanzu-m1** und **tanzu-s1**, m1 for master and s1 for the first worker. Logins are administrator and root on all server :-)  Just in case you do see, my passwords all all Password123!.
+I do name them **tanzu-m1** und **tanzu-s1**, m1 for master and s1 for the first worker. Logins are administrator and root on all server :-)  Just in case you do see, my password are **Password123!**.
 
 ### Create a new VM with the following properties :
 Compatibility : ESXi 6.7 Update 2 and later (VM version 15)
@@ -45,7 +45,7 @@ Compatibility : ESXi 6.7 Update 2 and later (VM version 15)
 * Change Type VMware Paravirtual     
 * SCSI Bus Sharing None  
 
-I have used smaller with 1 CPU and 10GB of disk. So fare no issues. 
+I have used smaller with 1 CPU and 10GB of disk. So fare no issues.   
 
 ### Enabling disk UUID on virtual machines  
 
