@@ -1,10 +1,16 @@
+
 #Agenda  
+```
+Voraussetzunge von VMware  
+   Step 1 vSphere 6.7 U3
+          vsphere and host  
 hier kommt dann mal de Agenda vielleicht mit Sprungmarken ???  
+```
 
 # Tanzu Kubernetes Space
 
 wir wollen hier ein K8s Cluster aufbauen, welches mit vSphere Tanzu diese FCD disken benutzt und als Kubernetes ein PVC hat.  
-Ziel ist es das k8s Clusten nach Aubau, dann mit DELL PowerProtect zu sichern
+Ziel ist es das k8s Clusten nach Aufbau, dann mit DELL PowerProtect zu sichern
 
 ## Voraussetzunge von VMware     
 Wir brauchen ein 6.7 U2 vSphere um dann 2 Ubuntu Server, k8s.master1 und k8s.slave1 mit k8s zu versehen
@@ -13,7 +19,7 @@ Wir brauchen ein 6.7 U2 vSphere um dann 2 Ubuntu Server, k8s.master1 und k8s.sla
 get vSphere 6.7 U3 running (check Hardware 15) die wir brauchen um die Ubuntu Server zu verwenden
 
 ## Step 2 Create both VM
-I do name them **tanzu-m1** und **tanzu-s1**, m1 for master and s1 for the first slave :-)  
+I do name them **tanzu-m1** und **tanzu-s1**, m1 for master and s1 for the first slave. Logins are administrator and root on all server :-)  
 
 ### Create a new VM with the following properties :
 Compatibility : ESXi 6.7 Update 2 and later (VM version 15)
@@ -90,14 +96,17 @@ SSH into all K8s worker nodes and disable swap on all nodes including master nod
     OK
     # add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
     # apt update
-    # apt install docker-ce=18.06.0~ce~3-0~ubuntu -y
+    # apt install docker-ce=18.06.0~ce~3-0~ubuntu -y  
+
+*The yaml file below is also part of this github repository. See for download*  
+    
     # tee /etc/docker/daemon.json >/dev/null <<EOF
     {
      "exec-opts": ["native.cgroupdriver=systemd"], "log-driver": "json-file",
      "log-opts": {
      "max-size": "100m" },
      "storage-driver": "overlay2" }
-    EOF
+    EOF  
     # mkdir -p /etc/systemd/system/docker.service.d
     # systemctl daemon-reload
     # systemctl restart docker
@@ -130,6 +139,10 @@ SSH into all K8s worker nodes and disable swap on all nodes including master nod
 
     #sudo su
 ***Where serviceSubnet: "10.98.48.0/21" is the CIDR/subnet mask and podSubnet: "10.244.0.0/16" is the default value. Note the "token:"in below as this will be RE-USED in Subsequent steps.***  
+
+
+*The yaml file below is also part of this github repository. See for download*  
+
 
     # tee /etc/kubernetes/kubeadminit.yaml >/dev/null <<EOF
     apiVersion: kubeadm.k8s.io/v1beta1  
@@ -166,21 +179,21 @@ SSH into all K8s worker nodes and disable swap on all nodes including master nod
 Preserve the output the of below command, Note that the last part of the output provides the command to join the worker nodes to the master in this Kubernetes cluster. 
 
     # kubeadm init --config /etc/kubernetes/kubeadminit.yaml  
+ 
+    Your Kubernetes control-plane has initialized successfully!  
     
  
-    Your Kubernetes control-plane has initialized successfully!
-
-    To start using your cluster, you need to run the following as a regular user:
+To start using your cluster, you need to run the following as a regular user (**administrator**):
 
       mkdir -p $HOME/.kube
       sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
       sudo chown $(id -u):$(id -g) $HOME/.kube/config
 
-    You should now deploy a pod network to the cluster.
-    Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
-      https://kubernetes.io/docs/concepts/cluster-administration/addons/
+You should now deploy a pod network to the cluster.  
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:  
+https://kubernetes.io/docs/concepts/cluster-administration/addons/    
 
-    Then you can join any number of worker nodes by running the following on each as root:
+Then you can join any number of worker nodes by running the following on each as **root**:
 
     # kubeadm join 192.168.1.155:6443 --token y7yaev.9dvwxx6ny4ef8vlq \
     --discovery-token-ca-cert-hash sha256:a40ed74295afe9514b36d3c389b4b803fe8f633c65928282c813746b57945d63
@@ -273,8 +286,14 @@ The discovery.yaml file will need to be copied to /etc/kubernetes/discovery.yaml
     tanzu-m1   Ready    master   65m     v1.14.2
     tanzu-s1   Ready    <none>   3m28s   v1.14.2
      
-  
-  
+ ----
+ yaml files are alos included into this repository. The yaml I am talking about are these starting with # tee... :  
+ 
+     location                           name  
+     -------                            -------
+     /etc/docker/daemon.json           daemon.json  
+     /etc/kubernetes/kubeadminit.yaml  kubeadminit.yaml
+
  -----
   
 **Weitere Tools die wir brauchen können findet ihr hier:**
