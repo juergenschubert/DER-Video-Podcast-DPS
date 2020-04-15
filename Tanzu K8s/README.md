@@ -14,10 +14,10 @@ Voraussetzunge von VMware
    Install Docker CE
    Install Kubelet, Kubectl, Kubeadm
    Pod Networking - flanel
-   Installing the Kubernetes
-     master node
-       Install flannel pod overlay networking
-     worker node
+   Install Kubernetes
+     on master node
+       Install flannel pod overlay networking for master
+     on worker node
      
 
 ```
@@ -153,7 +153,7 @@ SSH into all K8s worker nodes and disable swap on all nodes including master nod
     # sudo su
     # sysctl net.bridge.bridge-nf-call-iptables=1
 
-## Installing the Kubernetes master node(s)  
+## Installing the Kubernetes in your tanzu-m1 (master node)  
 
     #sudo su
 ***Where serviceSubnet: "10.98.48.0/21" is the CIDR/subnet mask and podSubnet: "10.244.0.0/16" is the default value. Note the "token:"in below as this will be RE-USED in Subsequent steps.***  
@@ -275,9 +275,9 @@ Finally, the master node configuration needs to be exported as it is used by the
 
      # kubectl -n kube-public get configmap cluster-info -o jsonpath='{.data.kubeconfig}' > discovery.yaml
 
-The discovery.yaml file will need to be copied to /etc/kubernetes/discovery.yaml on each of the worker nodes.
+The discovery.yaml file will need to be copied to /etc/kubernetes/discovery.yaml on your tanzu-s1 node
 
-##Installing the Kubernetes worker node(s)
+##Installing the Kubernetes worker node(tanzu-s1)
 
     # sudo su
     # tee /etc/kubernetes/kubeadminitworker.yaml >/dev/null <<EOF
@@ -295,7 +295,7 @@ The discovery.yaml file will need to be copied to /etc/kubernetes/discovery.yaml
     # kubeadm join --config /etc/kubernetes/kubeadminitworker.yaml
     
         
-**Go to your Master Server**
+**Go to your tasnzu-m1**
  
     # kubectl get nodes -o wide ( In Master )
 
