@@ -28,7 +28,7 @@ wir wollen hier ein K8s Cluster aufbauen, welches mit vSphere Tanzu diese FCD di
 Ziel ist es das k8s Clusten nach Aufbau, dann mit DELL PowerProtect zu sichern
 
 ## Voraussetzunge von VMware     
-Wir brauchen ein 6.7 U2 vSphere um dann 2 Ubuntu Server, tanzu-m1 und tanzu.s1 mit k8s zu versehen
+Wir brauchen ein 6.7 U2 vSphere um dann 2 Ubuntu Server, tanzu-m1 und tanzu.s1 mit k8s zu versehen. Wie das geht, was es zu beachten gibt sowie die einzelnen Schrite versuche ich hier zu beschreiben. Stand 15-Apr.2020 !
 
 ## Step 1 vSphere 6.7 U3
 get vSphere 6.7 U3 running (check Hardware 15) die wir brauchen um die Ubuntu Server zu verwenden
