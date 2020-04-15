@@ -136,7 +136,7 @@ SSH into all K8s worker nodes and disable swap on all nodes including master nod
     Server Version: 18.06.0-ce
     Cgroup Driver: systemd
 ## Install Kubelet, Kubectl, Kubeadm
-(Both master and worker )  
+On both tanzu-m1 and tanzu-s1 master and worker  
   
     # sudo su
     # curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
@@ -147,11 +147,17 @@ SSH into all K8s worker nodes and disable swap on all nodes including master nod
     # apt update
     # apt install -qy kubeadm=1.14.2-00 kubelet=1.14.2-00 kubectl=1.14.2-00
     # apt-mark hold kubelet kubeadm kubectl
+    kubelet set on hold.  
+    kubeadm set on hold.  
+    kubectl set on hold.  
+
 ## Pod Networking - Setup flannel 
 (Pod Networking for both master and worker )  
   
     # sudo su
-    # sysctl net.bridge.bridge-nf-call-iptables=1
+    # sysctl net.bridge.bridge-nf-call-iptables=1  
+    net.bridge.bridge-nf-call-iptables = 1  
+
 
 ## Installing the Kubernetes in your tanzu-m1 (master node)  
 
@@ -244,7 +250,7 @@ Then you can join any number of worker nodes by running the following on each as
 The next step that needs to be carried out on the master node is that the flannel pod overlay network must be installed so the pods can communicate with
 each other. ( ON MASTER AS REGULAR USER )  
 
-    # kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/62e44c867a2846fefb68bd5f178daf4da3095ccb/Documentation/kube-flannel.yml
+    # administrator@tanzu-m1:~$ kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/62e44c867a2846fefb68bd5f178daf4da3095ccb/Documentation/kube-flannel.yml
     podsecuritypolicy.extensions/psp.flannel.unprivileged created
     clusterrole.rbac.authorization.k8s.io/flannel created
     clusterrolebinding.rbac.authorization.k8s.io/flannel created
@@ -258,17 +264,17 @@ each other. ( ON MASTER AS REGULAR USER )
 
 At this point, you can check if the overlay network is deployed.  
 
-    # kubectl get pods --namespace=kube-system
+    # kubectl get pods --namespace=kube-system  
 
-    NAME READY STATUS RESTARTS AGE
-    coredns-6557d7f7d6-9s7sm 0/1 Pending 0 107s
-    coredns-6557d7f7d6-wgxtq 0/1 Pending 0 107s
-    etcd-k8s-mstr 1/1 Running 0 70s
-    kube-apiserver-k8s-mstr 1/1 Running 0 54s
-    kube-controller-manager-k8s-mstr 1/1 Running 0 53s
-    kube-flannel-ds-amd64-pm9m9 1/1 Running 0 11s
-    kube-proxy-8dfm9 1/1 Running 0 107s
-    kube-scheduler-k8s-mstr 1/1 Running 0 49s
+    NAME                             READY  STATUS RESTARTS AGE
+    coredns-6557d7f7d6-9s7sm          0/1  Pending   0      107s
+    coredns-6557d7f7d6-wgxtq          0/1  Pending   0      107s
+    etcd-k8s-mstr                     1/1  Running   0      70s
+    kube-apiserver-k8s-mstr           1/1  Running   0      54s
+    kube-controller-manager-k8s-mstr  1/1  Running   0      53s
+    kube-flannel-ds-amd64-pm9m9       1/1  Running   0      11s
+    kube-proxy-8dfm9                  1/1  Running   0      107s
+    kube-scheduler-k8s-mstr           1/1  Running   0      49s
 
 ##Export the master node configuration to worker nodes
 Finally, the master node configuration needs to be exported as it is used by the worker nodes wishing to join to the master.  
@@ -297,13 +303,56 @@ The discovery.yaml file will need to be copied to /etc/kubernetes/discovery.yaml
         
 **Go to your tasnzu-m1**
  
-    # kubectl get nodes -o wide ( In Master )
+    # administrator@tanzu-m1:~$ kubectl get nodes -o wide
+    NAME       STATUS   ROLES    AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
+    tanzu-m1   Ready    master   20h   v1.14.2   <none>        <none>        Ubuntu 18.04.4 LTS   4.15.0-96-generic   docker://18.6.0
+    tanzu-s1   Ready    <none>   19h   v1.14.2   <none>        <none>        Ubuntu 18.04.4 LTS   4.15.0-96-generic   docker://18.6.0
+
 
     # root@tanzu-m1:/home/administrator# kubectl get nodes
     NAME       STATUS   ROLES    AGE     VERSION
     tanzu-m1   Ready    master   65m     v1.14.2
     tanzu-s1   Ready    <none>   3m28s   v1.14.2
-     
+ 
+## Install the vSphere Cloud Provider Interface
+(tanzu-m1 Master )
+Note that the CSI driver requires the presence of the Cloud Provider Interface (CPI), so the step of installing the CPI is mandatory.
+Create a CPI configMap ( Ensure to give "secret-name" argument as lowercase value )  
+
+We are also working on some environment specific variables we need to clarfiy before we use them
+secret-name = "cpi-global-secret"    
+secret-namespace = "kube-system"    
+VirtualCenter "192.168.1.108"  
+datacenters = "Datacenter-145"  
+secret-name = "cpi-datacenter-145-secret"  
+secret-namespace = "kube-system"  
+
+No we can use them  
+
+    # tee /etc/kubernetes/vsphere.conf >/dev/null <<EOF 
+    [Global]
+    port = "443"
+    insecure-flag = "true"
+    secret-name = "cpi-global-secret" 
+    secret-namespace = "kube-system"
+    [VirtualCenter "192.168.1.108"] 
+    datacenters = "Datacenter-145" 
+    secret-name = "cpi-datacenter-145-secret" 
+    secret-namespace = "kube-system"
+    EOF
+    
+
+**insecure-flag** should be set to true to use self-signed certificate for login  
+**VirtualCenter** section is defined to hold property of vcenter. IP address and FQDN should be specified here.   
+**secret-name** holds the credential(s) for a single or list of vCenter Servers.  
+**secret-namespace** is set to the namespace where the secret has been created.  
+**port** is the vCenter Server Port. The default is 443 if not specified.  
+**datacenters** should be the list of all comma separated datacenters where kubernetes node VMs are present.  
+
+    # cd /etc/kubernetes
+    # kubectl create configmap cloud-config --from-file=vsphere.conf --namespace=kube-system
+    # kubectl get configmap cloud-config --namespace=kube-system
+  
  ---
 **yaml files are alos included into this repository. Look for the "yaml repositoy" folder in the github reprository.**  
 The yaml I am providing are these you can find above in the text starting with # tee...  
