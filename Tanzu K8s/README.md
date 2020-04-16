@@ -25,9 +25,9 @@ Voraussetzunge von VMware
 # Tanzu Kubernetes Space
 
 wir wollen hier ein K8s Cluster aufbauen, welches mit vSphere Tanzu diese FCD disken benutzt und als Kubernetes ein PVC hat.  
-Ziel ist es das k8s Clusten nach Aufbau, dann mit DELL PowerProtect zu sichern
+Ziel ist es das k8s Cluster nach Aufbau, dann mit DELL PowerProtect zu sichern
 
-## Voraussetzunge von VMware     
+## Voraussetzung von VMware     
 Wir brauchen ein 6.7 U2 vSphere um dann 2 Ubuntu Server, tanzu-m1 und tanzu.s1 mit k8s zu versehen. Wie das geht, was es zu beachten gibt sowie die einzelnen Schrite versuche ich hier zu beschreiben. Stand 15-Apr.2020 !
 
 ## Step 1 vSphere 6.7 U3
@@ -37,7 +37,7 @@ get vSphere 6.7 U3 running (check Hardware 15) die wir brauchen um die Ubuntu Se
 I do name them **tanzu-m1** und **tanzu-s1**, m1 for master and s1 for the first worker. Logins are administrator and root on all server :-)  Just in case you do see, my password are **Password123!**.
 
 ### Create a new VM with the following properties :
-Compatibility : ESXi 6.7 Update 2 and later (VM version 15)
+Compatibility : ESXi 6.7 Update 2 and later (HW version 15)
 * CPU 4 CPU(s),  
 * Memory 8 GB  
 * Hard disk 1 100GB  
