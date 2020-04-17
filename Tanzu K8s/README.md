@@ -99,13 +99,13 @@ Tools I am talking about and I am using are:
 Before we can start with the Ubuntu install I prefer to download a ISO file [http://releases.ubuntu.com/18.04.4/](download)  I can mount in the VM as a CD so it starts off that iso. So I am booting from this ISO file which does contain the latest Ubuntu Bionic Beaver version.   
 Duing install I will make sure that I can use a fixed IP and DNS entry from both systems.  
 **tanzu-m1.vlab.local** und **tanzu-s1.vlab.local**  
-Just you are running into issues on the network conig with netplan or/ and a DNS resolution topic. The below mentioned articles helped me to fix these issues.  
+Just you are running into issues on the network config with netplan or/ and a DNS resolution topic. The below mentioned articles helped me to fix these issues.  
 
 [Netzwerkconfig Hilfe und Troubleshooting -_Netplan](https://www.thomas-krenn.com/de/wiki/Netzwerk-Konfiguration_Ubuntu_-_Netplan)   
 [Ubuntu DNS Server nslookup Hilfe](https://www.thomas-krenn.com/de/wiki/Netzwerk-Konfiguration_Ubuntu_-_Netplan)
 
 ## Setting up VMs in the Guest OS
-After Ubuntu install and conig k8s components on the Ubuntu OS virtual machines are next. Some components must be installed on all of the nodes. In other cases, some of the components need only be installed on the master, and in other cases, only the workers. In each case, where the components are installed is highlighted. All installation and configuration commands should be executed with root privilege. You can switch to the root environment using the "sudo su" command. But before we can start with k8s componentes we need to prepare Ubuntu a bit.  
+After Ubuntu install and configure k8s components on the Ubuntu OS virtual machines are next. Some components must be installed on all of the nodes. In other cases, some of the components need only be installed on the master, and in other cases, only the workers. In each case, where the components are installed is highlighted. All installation and configuration commands should be executed with root privilege. You can switch to the root environment using the "sudo su" command. But before we can start with k8s componentes we need to prepare Ubuntu a bit.  
 
 ### Disable Swap (Both master and worker)
 SSH into all K8s worker nodes and disable swap on all nodes including master node. This is a prerequisite for kubeadm.    
@@ -113,8 +113,6 @@ SSH into all K8s worker nodes and disable swap on all nodes including master nod
     # sudo su  
     # swapoff -a  
     # vi /etc/fstab ... remove any swap entry from   this file ...
-
-and get ready for Docker installation. As we will use Docker as a container Service in our K8s environment.
 
 ## Install Docker CE (Both master and worker )
     # sudo su
@@ -657,14 +655,18 @@ Just to avoid typos is the reson to provide them.
      -------                            -------
      /etc/docker/daemon.json           daemon.json  
      /etc/kubernetes/kubeadminit.yaml  kubeadminit.yaml
+     /etc/kubernetes                   vsphere-csi-controller-ss.yaml
+     /etc/kubernetes                   vsphere-csi-node-ds.yaml
 
 
-
-
-This documentation was created from the follwing VMWare article which does contain more information as I have used [hDeploying a Kubernetes Cluster on vSphere with CSI and CPI](https://cloud-provider-vsphere.sigs.k8s.io/tutorials/kubernetes-on-vsphere-with-kubeadm.html)  
+This documentation was created from the follwing VMWare article which does contain more information as I have used [Deploying a Kubernetes Cluster on vSphere with CSI and CPI](https://cloud-provider-vsphere.sigs.k8s.io/tutorials/kubernetes-on-vsphere-with-kubeadm.html)  
  
  
-**Weitere Tools die wir brauchen können findet ihr hier:**
+**Weitere Tools die wir brauchen können und Information findet ihr hier:**
 
-kubectl for other Operating Systems [https://kubernetes.io/docs/tasks/tools/install-kubectl/]()   
-tmux for other Operating Systems [https://github.com/tmux/tmux]()    
+[WE RELIED ON STEPS HERE](https://cloud-provider-vsphere.sigs.k8s.io/tutorials/kubernetes-on-vsphere-with-kubeadm.html) 
+[YouTube](https://www.youtube.com/watch?v=pwM0WIeqNWU)  
+[https://blogs.vmware.com/virtualblocks/2019/08/14/introducing-cloud-native-storage-for-vsphere/ ](https://blogs.vmware.com/virtualblocks/2019/08/14/introducing-cloud-native-storage-for-vsphere/)
+[https://blogs.vmware.com/virtualblocks/2019/08/13/vsan67u3-whats-new/ https://cormachogan.com/2018/11/21/a-primer-on-first-class-disks-improved-virtual-disks/](https://blogs.vmware.com/virtualblocks/2019/08/13/vsan67u3-whats-new/ https://cormachogan.com/2018/11/21/a-primer-on-first-class-disks-improved-virtual-disks/)
+[kubectl for other Operating Systems](https://kubernetes.io/docs/tasks/tools/install-kubectl/)   
+[tmux for other Operating Systems](https://github.com/tmux/tmux)    
