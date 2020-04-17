@@ -480,9 +480,10 @@ and come back here. With my install it took 10 minutes until it changed to
     Name:               tanzu-m1
     Taints:             node-role.kubernetes.io/master:NoSchedule
     Name:               tanzu-s1
-    Taints:             <none>
+    Taints:             <none>  
 
 **IN CASE ANY NODES are TAINTED, USE BELOW TO REMOVE TAINTS ON WORKER NODES**  
+
 To Remove taints from nodes  
 
     root@tanzu-m1:/etc/kubernetes# kubectl describe nodes | egrep "Taints:|Name:"
