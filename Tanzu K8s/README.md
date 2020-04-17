@@ -161,9 +161,9 @@ On both tanzu-m1 and tanzu-s1, on master and worker
 
 ## Installing the Kubernetes on your tanzu-m1 (master node)  
 
-    #sudo su
+    #sudo su  
+    
 ***Where serviceSubnet: "10.98.48.0/21" is the CIDR/subnet mask and podSubnet: "10.244.0.0/16" is the default value. Note the "token:" in below as this will be RE-USED in Subsequent steps.***  
-
 
 *The yaml file below is also part of this github repository. See for download*  
 
