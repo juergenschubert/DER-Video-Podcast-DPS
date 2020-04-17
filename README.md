@@ -6,3 +6,6 @@ Hier findet ihr alle Information des DPS Podcast
 
 ## PowerCLI ova deployment
 UseCase: need more than one ova deployment -> idea automate it with PowerShell
+
+
+## Tanzu installing a 2 Node Cluster
