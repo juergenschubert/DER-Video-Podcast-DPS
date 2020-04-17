@@ -4,8 +4,8 @@ little overview what you'll find below
 
 ```
 Voraussetzunge von VMware  
-   Step 1 vSphere 6.7 U3 
-   Step 2 Create both VM  
+   Requirement - vSphere 6.7 U3 
+   Create TWO VM (master/worker)  
      Enabling disk UUID
      enable CBT
    Install Ubuntu
@@ -18,7 +18,18 @@ Voraussetzunge von VMware
      on master node
        Install flannel pod overlay networking for master
      on worker node
-     
+   Install the vSphere Cloud Provider Interface CPI
+     Create a CPI configMap
+     Create a CPI secret
+     Check that all nodes are tainted
+     Deploy the CPI manifests
+     Verify that the CPI has been successfully deployed
+     Check that all worker nodes are untainted
+   Install vSphere Container Storage Interface CSI Driver
+     Create a CSI secret
+     Create Roles, ServiceAccount and ClusterRoleBinding
+     Install the vSphere CSI driver
+     Verify that CSI has been successfully deployed
 
 ```
 
