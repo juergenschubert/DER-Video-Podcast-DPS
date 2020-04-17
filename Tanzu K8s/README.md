@@ -485,12 +485,12 @@ and come back here. With my install it took 10 minutes until it changed to
 **IN CASE ANY NODES are TAINTED, USE BELOW TO REMOVE TAINTS ON WORKER NODES**  
 
 To Remove taints from nodes  
-
+  
     root@tanzu-m1:/etc/kubernetes# kubectl describe nodes | egrep "Taints:|Name:"
-    Name:               tanzu-m1
-    Taints:             node-role.kubernetes.io/master:NoSchedule
-    Name:               tanzu-s1
-    Taints:             node.cloudprovider.kubernetes.io/uninitialized=true:NoSchedule
+                                   Name:    tanzu-m1
+                                   Taints:  node-role.kubernetes.io/master:NoSchedule
+                                   Name:    tanzu-s1
+                                   Taints:  node.cloudprovider.kubernetes.io/uninitialized=true:NoSchedule
     
 -
     
@@ -513,10 +513,10 @@ To Remove taints from nodes
 ( tanzu.m1 Master )  
 
     root@tanzu-m1:/etc/kubernetes# kubectl describe nodes | egrep "Taints:|Name:"
-    Name:               tanzu-m1
-    Taints:             node-role.kubernetes.io/master:NoSchedule
-    Name:               tanzu-s1
-    Taints:             <none>
+                                   Name:   tanzu-m1
+                                   Taints: node-role.kubernetes.io/master:NoSchedule
+                                   Name:   tanzu-s1
+                                   Taints: <none>
     
 The node-role.kubernetes.io/master=:NoSchedule taint is required to be present on the master nodes to prevent scheduling of the node plugin pods for vsphere-csi-node daemonset on the master nodes. Should you need to read the taint, you can use the following command:
 
@@ -535,13 +535,13 @@ The node-role.kubernetes.io/master=:NoSchedule taint is required to be present o
     EOF
 -
   
-cluster-id represents the unique cluster identifier. Each kubernetes cluster should have it's own unique cluster-id set in the csi-vsphere.conf file.  
-VirtualCenter section defines vCenter IP address / FQDN.   
-insecure-flag should be set to true to use self-signed certificate for login   
-user is the vCenter username for vSphere Cloud Provider.  
-password is the password for vCenter user specified with user.  
-port is the vCenter Server Port. The default is 443 if not specified.  
-datacenters should be the list of all comma separated datacenters where kubernetes node VMs are present.  
+**cluster-id** represents the unique cluster identifier. Each kubernetes cluster should have it's own unique cluster-id set in the csi-vsphere.conf file.  
+**VirtualCenter** section defines vCenter IP address / FQDN.   
+**insecure-flag** should be set to true to use self-signed certificate for login   
+**user** is the vCenter username for vSphere Cloud Provider.  
+**password** is the password for vCenter user specified with user.  
+**port** is the vCenter Server Port. The default is 443 if not specified.  
+**datacenters** should be the list of all comma separated datacenters where kubernetes node VMs are present.  
     
   --
     
@@ -559,11 +559,11 @@ datacenters should be the list of all comma separated datacenters where kubernet
 (Master)
 
 Check the Version on GitHub  
-https://github.com/kubernetes-sigs/vsphere-csi-driver/tree/master/manifests
-Here wa also do find different manifest for different vSphere Version  
+[https://github.com/kubernetes-sigs/vsphere-csi-driver/tree/master/manifests]()
+Here we also do find different manifest for different vSphere Version  
 
 My version was: 
-https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/vsphere-67u3/vanilla/rbac/vsphere-csi-controller-rbac.yaml
+[https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/vsphere-67u3/vanilla/rbac/vsphere-csi-controller-rbac.yaml]()
 
     $ kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/vsphere-67u3/vanilla/rbac/vsphere-csi-controller-rbac.yaml  
     serviceaccount/vsphere-csi-controller created
@@ -572,11 +572,11 @@ https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/mani
 
 ### Install the vSphere CSI driver
 But where to find? As of Apr 17 2020 I do search at  
-https://github.com/kubernetes-sigs/vsphere-csi-driver/tree/master/manifests/vsphere-67u3/vanilla/deploy
+[https://github.com/kubernetes-sigs/vsphere-csi-driver/tree/master/manifests/vsphere-67u3/vanilla/deploy]()
 You do see a branch for vsphere-67u3 adn there is one for vsphere 7 as well. As I have vsphere-67u3 I do use this  
 I do see   
-vsphere-csi-controller-deployment.yaml	 addressed review comments  
-vsphere-csi-node-ds.yaml	              removed mounting vsphere csi conf secret in vsphere-csi-node daemonset  
+vsphere-csi-controller-deployment.yaml     addressed review comments  
+vsphere-csi-node-ds.yaml                   removed mounting vsphere csi conf secret in vsphere-csi-node daemonset   
 
 Config the deployment  
 
