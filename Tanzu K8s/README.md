@@ -582,18 +582,25 @@ My version was:
     clusterrolebinding.rbac.authorization.k8s.io/vsphere-csi-controller-binding created
 
 ### Install the vSphere CSI driver
-Troubles with new dirver ->
+[Troubles with new csi dirver](https://github.com/juergenschubert/DER-Video-Podcast-DPS)
 
 PICK THE LATEST CSI DRIVER ALWAYS. AS OF MARCH 2020 , the latest one is v1.0.2. I have added them into my github, but you can alos find them: [v1.0.2.deployment and DaemonSet](https://github.com/kubernetes-sigs/vsphere-csi-driver/pull/179/commits/f60041e1e1eb3252069420312356dd77a25ad746)
 
     master/manifests/archives/driver-v1.0.2/deploy/vsphere-csi-controller-ss.yaml contains in the yaml repoitory  
-    # kubectl apply -f vsphere-csi-controller-ss.yaml    
+    root@tanzu-m1:/etc/kubernetes# kubectl apply -f vsphere-csi-controller-ss.yaml
+    
+    OR with online file
+    root@tanzu-m1:/etc/kubernetes# kubectl apply -f https://raw.githubusercontent.com/juergenschubert/DER-Video-Podcast-DPS/master/Tanzu%20K8s/yaml%20repository/vsphere-csi-controller-ss.yaml
+    
     statefulset.apps/vsphere-csi-controller created    
     csidriver.storage.k8s.io/csi.vsphere.vmware.com created    
      
     master/anifests/archives/driver-v1.0.2/deploy/vsphere-csi-node-ds.yaml contains in the yaml repoitory  
-    # kubectl apply -f vsphere-csi-node-ds.yaml  
+    root@tanzu-m1:/etc/kubernetes# kubectl apply -f vsphere-csi-node-ds.yaml 
     daemonset.apps/vsphere-csi-node created  
+
+    OR with online file
+    root@tanzu-m1:/etc/kubernetes# kubectl apply -f https://raw.githubusercontent.com/juergenschubert/DER-Video-Podcast-DPS/master/Tanzu%20K8s/yaml%20repository/vsphere-csi-node-ds.yaml
 
 NOW we need some time. It took 10 Minutes until I saw a result !!!  
 
@@ -602,14 +609,44 @@ NOW we need some time. It took 10 Minutes until I saw a result !!!
 
 
     # kubectl get statefulset --namespace=kube-system 
+    NAME                     READY   AGE
+    vsphere-csi-controller   0/1     22m
+
     # kubectl get daemonsets vsphere-csi-node --namespace=kube-system 
+    NAME               DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
+    vsphere-csi-node   1         1         1       1            1           <none>          14m
+
 
 The number of csi-nodes depends on the size of the cluster. There is one per Kubernetes worker node. 
 
      # kubectl get pods --namespace=kube-system
+     NAME                                     READY   STATUS    RESTARTS   AGE
+     coredns-6557d7f7d6-cwh2w                 1/1     Running   0          3d4h
+     coredns-6557d7f7d6-lkmgj                 1/1     Running   0          3d4h
+     etcd-tanzu-m1                            1/1     Running   1          3d4h
+     kube-apiserver-tanzu-m1                  1/1     Running   1          3d4h
+     kube-controller-manager-tanzu-m1         1/1     Running   3          3d4h
+     kube-flannel-ds-amd64-nq84d              1/1     Running   1          3d3h
+     kube-flannel-ds-amd64-wddlj              1/1     Running   2          3d3h
+     kube-proxy-qj46g                         1/1     Running   1          3d3h
+     kube-proxy-vhfmg                         1/1     Running   1          3d4h
+     kube-scheduler-tanzu-m1                  1/1     Running   2          3d4h
+     vsphere-cloud-controller-manager-wjg2t   1/1     Running   0          5h27m
+     vsphere-csi-controller-0                 0/5     Pending   0          23m
+     vsphere-csi-node-pzjhj                   3/3     Running   0          15m
+
      # kubectl get CSINode
+     NAME       CREATED AT
+     tanzu-s1   2020-04-17T18:59:27Z
 
 
+ ---
+  
+  
+  WORK in PROGRESS - Hier kommt noch was ! WANN? Sei geduldig!!!  
+  
+  
+ ---
 
  ---
 **yaml files are alos included into this repository. Look for the "yaml repositoy" folder in the github reprository.**  
@@ -621,13 +658,7 @@ Just to avoid typos is the reson to provide them.
      /etc/docker/daemon.json           daemon.json  
      /etc/kubernetes/kubeadminit.yaml  kubeadminit.yaml
 
- ---
-  
-  
-  WORK in PROGRESS - Hier kommt noch was ! WANN? Sei geduldig!!!  
-  
-  
- ---
+
 
 
 This documentation was created from the follwing VMWare article which does contain more information as I have used [hDeploying a Kubernetes Cluster on vSphere with CSI and CPI](https://cloud-provider-vsphere.sigs.k8s.io/tutorials/kubernetes-on-vsphere-with-kubeadm.html)  
