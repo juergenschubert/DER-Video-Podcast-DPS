@@ -610,6 +610,8 @@ NOW we need some time. It took 10 Minutes until I saw a result !!!
     NAME                     READY   AGE
     vsphere-csi-controller   0/1     22m
 
+There is one Node per Worker. As we do have tanzu-s1 only we will have 1 Node !!  
+
     # kubectl get daemonsets vsphere-csi-node --namespace=kube-system 
     NAME               DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
     vsphere-csi-node   1         1         1       1            1           <none>          14m
@@ -637,7 +639,77 @@ The number of csi-nodes depends on the size of the cluster. There is one per Kub
      NAME       CREATED AT
      tanzu-s1   2020-04-17T18:59:27Z
 
+### Verify that the CSI Custom Resource Definitions are working
 
+To list the CSI NODES
+    root@tanzu-m1:/etc/kubernetes# kubectl get CSINode
+    NAME       CREATED AT
+    tanzu-s1   2020-04-17T18:59:27Z
+
+    root@tanzu-m1:/etc/kubernetes# kubectl describe CSINode
+    Name:         tanzu-s1
+    Namespace:
+    Labels:       <none>
+    Annotations:  <none>
+    API Version:  storage.k8s.io/v1beta1
+    Kind:         CSINode
+    Metadata:
+      Creation Timestamp:  2020-04-17T18:59:27Z
+      Owner References:
+        API Version:     v1
+        Kind:            Node
+        Name:            tanzu-s1
+        UID:             c0440fea-7e65-11ea-bb01-005056839255
+      Resource Version:  256224
+      Self Link:         /apis/storage.k8s.io/v1beta1/csinodes/tanzu-s1
+      UID:               8fe20c92-80dd-11ea-88e0-005056839255
+    Spec:
+      Drivers:
+        Name:           csi.vsphere.vmware.com
+        Node ID:        tanzu-s1
+        Topology Keys:  <nil>
+    Events:             <none>
+-
+
+    root@tanzu-m1:/etc/kubernetes# kubectl get csidrivers
+    NAME                     CREATED AT
+    csi.vsphere.vmware.com   2020-04-17T18:52:05Z
+
+
+
+    root@tanzu-m1:/etc/kubernetes# kubectl describe csidrivers
+    Name:         csi.vsphere.vmware.com
+    Namespace:
+    Labels:       <none>
+    Annotations:  kubectl.kubernetes.io/last-applied-configuration:
+                {"apiVersion":"storage.k8s.io/v1beta1","kind":"CSIDriver","metadata":{"annotations":{},"name":"csi.vsphere.vmware.com"},"spec":{"attachReq...
+    API Version:  storage.k8s.io/v1beta1
+    Kind:         CSIDriver
+    Metadata:
+      Creation Timestamp:  2020-04-17T18:52:05Z
+      Resource Version:    255391
+      Self Link:           /apis/storage.k8s.io/v1beta1/csidrivers/csi.vsphere.vmware.com
+      UID:                 87fd0b72-80dc-11ea-88e0-005056839255
+    Spec:
+      Attach Required:    true
+      Pod Info On Mount:  false
+    Events:               <none>
+
+we are checking above the two values 
+      Attach Required:    true
+      Pod Info On Mount:  false
+      
+
+### Verify your Cluster Setup
+    # kubectl get nodes
+    root@tanzu-m1:/etc/kubernetes# kubectl get nodes
+    NAME       STATUS   ROLES    AGE     VERSION
+    tanzu-m1   Ready    master   3d18h   v1.14.2
+    tanzu-s1   Ready    <none>   3d17h   v1.14.2
+
+
+### Verify ProviderID has been added the nodes
+    # kubectl describe nodes | grep "ProviderID"
  ---
   
   
