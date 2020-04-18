@@ -630,9 +630,11 @@ The number of csi-nodes depends on the size of the cluster. There is one per Kub
      vsphere-csi-controller-0                 0/5     Pending   0          23m
      vsphere-csi-node-pzjhj                   3/3     Running   0          15m
 
-
 **As long as you do have vsphere-csi-controller-0   Pending ... you will not a csi running, so no ProviderID!**
 
+     # kubectl get pods --namespace=kube-system
+ 
+ 
      # kubectl get CSINode
      NAME       CREATED AT
      tanzu-s1   2020-04-17T18:59:27Z
