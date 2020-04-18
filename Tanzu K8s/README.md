@@ -710,6 +710,9 @@ we are checking above the two values
 
 ### Verify ProviderID has been added the nodes
     # kubectl describe nodes | grep "ProviderID"
+    
+    Nothing which the grep can find
+    
  ---
   
   
