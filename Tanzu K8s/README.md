@@ -567,6 +567,8 @@ The node-role.kubernetes.io/master=:NoSchedule taint is required to be present o
 ### Create Roles, ServiceAccount and ClusterRoleBinding  
 (Master)
 
+    # cd ..
+
 Check the Version on GitHub  
 [https://github.com/kubernetes-sigs/vsphere-csi-driver/tree/master/manifests]()
 Here we also do find different manifest for different vSphere Version  
@@ -574,7 +576,7 @@ Here we also do find different manifest for different vSphere Version
 My version was: 
 [https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/vsphere-67u3/vanilla/rbac/vsphere-csi-controller-rbac.yaml]()
 
-    $ kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/vsphere-67u3/vanilla/rbac/vsphere-csi-controller-rbac.yaml  
+    $ kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/v1.0.2/rbac/vsphere-csi-controller-rbac.yaml 
     serviceaccount/vsphere-csi-controller created
     clusterrole.rbac.authorization.k8s.io/vsphere-csi-controller-role created
     clusterrolebinding.rbac.authorization.k8s.io/vsphere-csi-controller-binding created
@@ -584,21 +586,14 @@ My version was:
 
 PICK THE LATEST CSI DRIVER ALWAYS. AS OF MARCH 2020 , the latest one is v1.0.2. I have added them into my github, but you can alos find them: [v1.0.2.deployment and DaemonSet](https://github.com/kubernetes-sigs/vsphere-csi-driver/pull/179/commits/f60041e1e1eb3252069420312356dd77a25ad746)
 
-    master/manifests/archives/driver-v1.0.2/deploy/vsphere-csi-controller-ss.yaml contains in the yaml repoitory  
-    root@tanzu-m1:/etc/kubernetes# kubectl apply -f vsphere-csi-controller-ss.yaml
-    
-    OR with online file
-    root@tanzu-m1:/etc/kubernetes# kubectl apply -f https://raw.githubusercontent.com/juergenschubert/DER-Video-Podcast-DPS/master/Tanzu%20K8s/yaml%20repository/vsphere-csi-controller-ss.yaml
-    
+I am using: [https://github.com/kubernetes-sigs/vsphere-csi-driver/tree/master/manifests/](CSI Manifest) 1.0.2  
+
+    root@tanzu-m1:/etc/kubernetes# kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/v1.0.2/deploy/vsphere-csi-controller-ss.yaml
     statefulset.apps/vsphere-csi-controller created    
     csidriver.storage.k8s.io/csi.vsphere.vmware.com created    
-     
-    master/anifests/archives/driver-v1.0.2/deploy/vsphere-csi-node-ds.yaml contains in the yaml repoitory  
-    root@tanzu-m1:/etc/kubernetes# kubectl apply -f vsphere-csi-node-ds.yaml 
-    daemonset.apps/vsphere-csi-node created  
-
-    OR with online file
-    root@tanzu-m1:/etc/kubernetes# kubectl apply -f https://raw.githubusercontent.com/juergenschubert/DER-Video-Podcast-DPS/master/Tanzu%20K8s/yaml%20repository/vsphere-csi-node-ds.yaml
+ 
+    root@tanzu-m1:/etc/kubernetes# kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/v1.0.2/deploy/vsphere-csi-node-ds.yaml
+    daemonset.apps/vsphere-csi-node created
 
 NOW we need some time. It took 10 Minutes until I saw a result !!!  
 
