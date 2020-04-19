@@ -416,13 +416,23 @@ for multiple VCenters refer : https://cloud-provider-vsphere.sigs.k8s.io/tutoria
     
 ** IF NODES NEED TO BE TAINTED , USE BELOW**
 
-    # administrator@k8vmware1master:/etc/kubernetes$ kubectl taint nodes k8vmware1worker1 node.cloudprovider.kubernetes. io/uninitialized=true:NoSchedule
+    root@tanzu-m1:/home/administrator# kubectl taint nodes tanzu-s1 node.cloudprovider.kubernetes.io/uninitialized=true:NoSchedule
+    node/tanzu-s1 tainted
+ 
+    root@tanzu-m1:/home/administrator# kubectl taint nodes tanzu-s1 node.cloudprovider.kubernetes.io/uninitialized=true:NoSchedule
+    node/tanzu-s1 tainted
+    root@tanzu-m1:/home/administrator# kubectl describe nodes | egrep "Taints:|Name:"
+    Name:               tanzu-m1
+    Taints:             node-role.kubernetes.io/master:NoSchedule
+    Name:               tanzu-s1
+    Taints:             node.cloudprovider.kubernetes.io/uninitialized=true:NoSchedule
+
 
 ### Deploy the CPI manifests  
 
     # kubectl apply -f https://raw.githubusercontent.com/kubernetes/cloud-provider-vsphere/master/manifests/controller-manager/cloud-controller-manager-roles.yaml  
     clusterrole.rbac.authorization.k8s.io/system:cloud-controller-manager created
-
+    
     # kubectl apply -f https://raw.githubusercontent.com/kubernetes/cloud-provider-vsphere/master/manifests/controller-manager/cloud-controller-manager-role-bindings.yaml   
     clusterrolebinding.rbac.authorization.k8s.io/system:cloud-controller-manager created
 
@@ -503,20 +513,14 @@ To Remove taints from nodes
     
 -
     
-    root@tanzu-m1:/etc/kubernetes# kubectl patch node tanzu-s1 -p '{"spec":{"taints":[]}}' node/tanzu-s1 patched
-    error: there is no need to specify a resource type as a separate argument when passing arguments in resource/name form (e.g. 'kubectl get resource/<resource_name>' instead of 'kubectl get resource resource/<resource_name>'
-    
-    root@tanzu-m1:/etc/kubernetes# kubectl patch node tanzu-s1 -p '{"spec":{"taints":[]}}' tanzu-s1 patched
-    node/tanzu-s1 patched
+    root@tanzu-m1:/home/administrator# kubectl patch node tanzu-s1 -p '{"spec":{"taints":[]}}' tanzu-s1
     node/tanzu-s1 patched (no change)
-    Error from server (NotFound): nodes "patched" not found
-    
-    root@tanzu-m1:/etc/kubernetes# kubectl describe nodes | egrep "Taints:|Name:"
+    node/tanzu-s1 patched (no change)
+    root@tanzu-m1:/home/administrator# kubectl describe nodes | egrep "Taints:|Name:"
     Name:               tanzu-m1
     Taints:             node-role.kubernetes.io/master:NoSchedule
     Name:               tanzu-s1
     Taints:             <none>
-
 
 ## Install vSphere Container Storage Interface csi Driver
 ( tanzu.m1 Master )  
@@ -566,9 +570,7 @@ The node-role.kubernetes.io/master=:NoSchedule taint is required to be present o
 
 ### Create Roles, ServiceAccount and ClusterRoleBinding  
 (Master)
-
-    # cd ..
-
+As this is a GitHub project, new things are existinge while I am writinge this text. To keep current  
 Check the Version on GitHub  
 [https://github.com/kubernetes-sigs/vsphere-csi-driver/tree/master/manifests]()
 Here we also do find different manifest for different vSphere Version  
@@ -576,27 +578,64 @@ Here we also do find different manifest for different vSphere Version
 My version was: 
 [https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/vsphere-67u3/vanilla/rbac/vsphere-csi-controller-rbac.yaml]()
 
-    $ kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/v1.0.2/rbac/vsphere-csi-controller-rbac.yaml 
+
+    # cd ..
+    
+----
+**kubectl delete**, in case you run through this not the first time. Remove a deploymenent made mwith #kubectl apply -f.   
+The first time? So not run the kubectl delete as they will tell you that they cannnot !!  
+
+This will remove the ServiceAccount, ClusterRole and ClusterRoleBinding.  
+
+    kubectl delete -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/v1.0.2/rbac/vsphere-csi-controller-rbac.yaml 
+----
+
+Let's create the  ServiceAccount, ClusterRole and ClusterRoleBinding  
+
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/v1.0.2/rbac/vsphere-csi-controller-rbac.yaml 
     serviceaccount/vsphere-csi-controller created
     clusterrole.rbac.authorization.k8s.io/vsphere-csi-controller-role created
     clusterrolebinding.rbac.authorization.k8s.io/vsphere-csi-controller-binding created
 
 ### Install the vSphere CSI driver
+
 [Troubles with new csi dirver](https://github.com/juergenschubert/DER-Video-Podcast-DPS)
 
 PICK THE LATEST CSI DRIVER ALWAYS. AS OF MARCH 2020 , the latest one is v1.0.2. I have added them into my github, but you can alos find them: [v1.0.2.deployment and DaemonSet](https://github.com/kubernetes-sigs/vsphere-csi-driver/pull/179/commits/f60041e1e1eb3252069420312356dd77a25ad746)
 
 I am using: [https://github.com/kubernetes-sigs/vsphere-csi-driver/tree/master/manifests/](CSI Manifest) 1.0.2  
 
+--
+kubectl delete, in case you run through this not the first time. The first time? So not run the kubectl delete as they will tell you that they cannnot !!  
+
+    kubectl delete -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/v1.0.2/deploy/vsphere-csi-controller-ss.yaml
+    kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/v1.0.2/deploy/vsphere-csi-node-ds.yaml
+--    
+    
+Create the [vsphere-csi-controller](https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/v1.0.2/deploy/vsphere-csi-controller-ss.yaml)
+
     root@tanzu-m1:/etc/kubernetes# kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/v1.0.2/deploy/vsphere-csi-controller-ss.yaml
     statefulset.apps/vsphere-csi-controller created    
     csidriver.storage.k8s.io/csi.vsphere.vmware.com created    
  
+ This has create in my environemnt the ***vsphere-csi-controller-0*** with a replicaset of 1    
+ 
+ Create the [DaemonSet](https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/v1.0.2/deploy/vsphere-csi-node-ds.yaml)
+ 
     root@tanzu-m1:/etc/kubernetes# kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/v1.0.2/deploy/vsphere-csi-node-ds.yaml
     daemonset.apps/vsphere-csi-node created
 
+this will creat a **DaemonSet**. [explain DaemonSet](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/)
+
 NOW we need some time. It took 10 Minutes until I saw a result !!!  
 
+    kubectl get pods --namespace=kube-system
+    NAME                                     READY   STATUS    RESTARTS   AGE
+    vsphere-csi-controller-0                 0/5     Pending   0          43s
+
+A Pending pod can be troubleshooted with:  
+
+     kubectl describe pods vsphere-csi-controller-0 --namespace=kube-system
 
 ### Verify that CSI has been successfully deployed
 
@@ -610,9 +649,6 @@ There is one Node per Worker. As we do have tanzu-s1 only we will have 1 Node !!
     # kubectl get daemonsets vsphere-csi-node --namespace=kube-system 
     NAME               DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
     vsphere-csi-node   1         1         1       1            1           <none>          14m
-
-
-The number of csi-nodes depends on the size of the cluster. There is one per Kubernetes worker node. 
 
      # kubectl get pods --namespace=kube-system
      NAME                                     READY   STATUS    RESTARTS   AGE
