@@ -97,12 +97,7 @@ Tools I am talking about and I am using are:
 
 ## Install Ubuntu 18.04.4 LTS (Bionic Beaver) 
 Before we can start with the Ubuntu install I prefer to download a ISO file [http://releases.ubuntu.com/18.04.4/](download)  I can mount in the VM as a CD so it starts off that iso. So I am booting from this ISO file which does contain the latest Ubuntu Bionic Beaver version.   
-Duing install I will make sure that I can use a fixed IP and DNS entry from both systems.  
-**tanzu-m1.vlab.local** und **tanzu-s1.vlab.local**  
-Just you are running into issues on the network config with netplan or/ and a DNS resolution topic. The below mentioned articles helped me to fix these issues.  
-
-[Netzwerkconfig Hilfe und Troubleshooting -_Netplan](https://www.thomas-krenn.com/de/wiki/Netzwerk-Konfiguration_Ubuntu_-_Netplan)   
-[Ubuntu DNS Server nslookup Hilfe](https://www.thomas-krenn.com/de/wiki/Netzwerk-Konfiguration_Ubuntu_-_Netplan)
+Hostname tanzu-m1 for master and tanzu-s1 for Worker both should be in DNS with FQDN
 
 ## Setting up VMs in the Guest OS
 After Ubuntu install and configure k8s components on the Ubuntu OS virtual machines are next. Some components must be installed on all of the nodes. In other cases, some of the components need only be installed on the master, and in other cases, only the workers. In each case, where the components are installed is highlighted. All installation and configuration commands should be executed with root privilege. You can switch to the root environment using the "sudo su" command. But before we can start with k8s componentes we need to prepare Ubuntu a bit.  
@@ -113,6 +108,19 @@ SSH into all K8s worker nodes and disable swap on all nodes including master nod
     # sudo su  
     # swapoff -a  
     # vi /etc/fstab ... remove any swap entry from   this file ...
+### Linux Config
+    # hostname
+    tanzu-m1
+    # hostname -f
+    tanzu-m.vlab.local
+[Hostname/Domain/FQDN](https://gridscale.io/community/tutorials/hostname-fqdn-ubuntu/)
+
+Duing install I will make sure that I can use a fixed IP and DNS entry from both systems.  
+**tanzu-m1.vlab.local** und **tanzu-s1.vlab.local**  
+Just you are running into issues on the network config with netplan or/ and a DNS resolution topic. The below mentioned articles helped me to fix these issues.  
+
+[Netzwerkconfig Hilfe und Troubleshooting -_Netplan](https://www.thomas-krenn.com/de/wiki/Netzwerk-Konfiguration_Ubuntu_-_Netplan)   
+[Ubuntu DNS Server nslookup Hilfe](https://www.thomas-krenn.com/de/wiki/Netzwerk-Konfiguration_Ubuntu_-_Netplan)
 
 ## Install Docker CE (Both master and worker )
     # sudo su
