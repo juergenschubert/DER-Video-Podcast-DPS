@@ -58,6 +58,8 @@ Compatibility : ESXi 6.7 Update 2 and later (HW version 15)
 I have used smaller with 1 CPU and 10GB of disk. So fare no issues.   
 
 ### Enabling disk UUID on virtual machines  
+further down in the doc **Govc commandline tool** topic I am discussion how to use a commandline tool in Ubuntu to do the above config! 
+
 
 disk.EnableUUID=1  
     - Power off the guest.  
@@ -107,13 +109,27 @@ SSH into all K8s worker nodes and disable swap on all nodes including master nod
 
     # sudo su  
     # swapoff -a  
-    # vi /etc/fstab ... remove any swap entry from   this file ...
+    # vi /etc/fstab ... remove any swap entry from   this file ...  
+    
 ### Linux Config
     # hostname
     tanzu-m1
     # hostname -f
     tanzu-m.vlab.local
-[Hostname/Domain/FQDN](https://gridscale.io/community/tutorials/hostname-fqdn-ubuntu/)
+[Hostname/Domain/FQDN](https://gridscale.io/community/tutorials/hostname-fqdn-ubuntu/)  
+
+#### Govc commandline tool  
+download govc_linux_amd64.gz  
+
+    wget https://github.com/vmware/govmomi/releases/download/v0.22.1/govc_linux_amd64.gz
+
+Download the file relevant to your operating system
+Decompress (i.e. gzip -d govc_linux_amd64.gz)
+Set the executable bit (i.e. chmod +x govc_linux_amd64)
+Move the file to a directory in your $PATH (i.e. mv govc_linux_amd64 /usr/local/bin/govc)
+
+[Govc cmdl Tool and steps ](https://github.com/juergenschubert/DER-Video-Podcast-DPS/blob/master/Tanzu%20K8s/govc%20howto.md)
+
 
 Duing install I will make sure that I can use a fixed IP and DNS entry from both systems.  
 **tanzu-m1.vlab.local** und **tanzu-s1.vlab.local**  
@@ -137,10 +153,11 @@ Just you are running into issues on the network config with netplan or/ and a DN
     
     # tee /etc/docker/daemon.json >/dev/null <<EOF
     {
-     "exec-opts": ["native.cgroupdriver=systemd"], "log-driver": "json-file",
-     "log-opts": {
-     "max-size": "100m" },
-     "storage-driver": "overlay2" }
+    "exec-opts": ["native.cgroupdriver=systemd"], "log-driver": "json-file",
+    "log-opts": {
+    "max-size": "100m" },
+    "storage-driver": "overlay2" }
+     
     EOF  
     # mkdir -p /etc/systemd/system/docker.service.d
     # systemctl daemon-reload
@@ -181,51 +198,118 @@ On both tanzu-m1 and tanzu-s1, on master and worker
     #sudo su  
     
 ***Where serviceSubnet: "10.98.48.0/21" is the CIDR/subnet mask and podSubnet: "10.244.0.0/16" is the default value. Note the "token:" in below as this will be RE-USED in Subsequent steps.***  
+In my vCenter I do have 192.168.1.0/24 CIDR/subnet
 
 *The yaml file below is also part of this github repository. See for download*  
 
 
-    # tee /etc/kubernetes/kubeadminit.yaml >/dev/null <<EOF
+    tee /etc/kubernetes/kubeadminit.yaml >/dev/null <<EOF  
     apiVersion: kubeadm.k8s.io/v1beta1  
     kind: InitConfiguration  
     bootstrapTokens:  
            - groups:  
-            - system:bootstrappers:kubeadm:default-node-token  
-            token: y7yaev.9dvwxx6ny4ef8vlq  
-            ttl: 0s  
-            usages:  
-            - signing  
-            - authentication  
-    nodeRegistration:  
-      kubeletExtraArgs:  
-        cloud-provider: external  
-    ---  
-    apiVersion: kubeadm.k8s.io/v1beta1  
-    kind: ClusterConfiguration  
-    useHyperKubeImage: false  
-    kubernetesVersion: v1.14.2  
-    networking:  
-      serviceSubnet: "10.96.0.0/12"  
-      podSubnet: "10.244.0.0/16"  
-    etcd:  
-      local:  
-        imageRepository: "k8s.gcr.io"  
-        imageTag: "3.3.10"  
-    dns:  
-      type: "CoreDNS"  
-      imageRepository: "k8s.gcr.io"  
-      imageTag: "1.5.0"  
-    EOF
+             - system:bootstrappers:kubeadm:default-node-token  
+             token: y7yaev.9dvwxx6ny4ef8vlq  
+             ttl: 0s  
+             usages:     
+             - signing
+             - authentication
+    nodeRegistration:
+      kubeletExtraArgs:
+        cloud-provider: external
+    ---
+    apiVersion: kubeadm.k8s.io/v1beta1
+    kind: ClusterConfiguration
+    useHyperKubeImage: false
+    kubernetesVersion: v1.14.2
+    networking:
+      serviceSubnet: "192.168.1.0/24"
+      podSubnet: "10.244.0.0/16"
+    etcd:
+      local:
+        imageRepository: "k8s.gcr.io"
+        imageTag: "3.3.10"
+    dns:
+      type: "CoreDNS"
+      imageRepository: "k8s.gcr.io"
+      imageTag: "1.5.0"
+    EOF  
 
-Preserve the output the of below command, Note that the last part of the output provides the command to join the worker nodes to the master in this Kubernetes cluster. 
 
-    # kubeadm init --config /etc/kubernetes/kubeadminit.yaml  
- 
-    Your Kubernetes control-plane has initialized successfully!  
-    
- 
+Preserve the output the of below command, Note that the last part of the output provides the command to join the worker nodes to the master in this Kubernetes cluster.  
+
+  
+    root@tanzu-m1:~# kubeadm init --config /etc/kubernetes/kubeadminit.yaml  
+    [init] Using Kubernetes version: v1.14.2
+    [preflight] Running pre-flight checks
+    [preflight] Pulling images required for setting up a Kubernetes cluster
+    [preflight] This might take a minute or two, depending on the speed of your internet connection
+    [preflight] You can also perform this action in beforehand using 'kubeadm config images pull'
+    [kubelet-start] Writing kubelet environment file with flags to file "/var/lib/kubelet/kubeadm-flags.env"
+    [kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
+    [kubelet-start] Activating the kubelet service
+    [certs] Using certificateDir folder "/etc/kubernetes/pki"
+    [certs] Generating "ca" certificate and key
+    [certs] Generating "apiserver" certificate and key
+    [certs] apiserver serving cert is signed for DNS names [tanzu-m1 kubernetes     kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local] and IPs     [192.168.1.1 192.168.1.155]
+    [certs] Generating "apiserver-kubelet-client" certificate and key
+    [certs] Generating "front-proxy-ca" certificate and key
+    [certs] Generating "front-proxy-client" certificate and key
+    [certs] Generating "etcd/ca" certificate and key
+    [certs] Generating "etcd/server" certificate and key
+    [certs] etcd/server serving cert is signed for DNS names [tanzu-m1 localhost] and IPs         [192.168.1.155 127.0.0.1 ::1]
+    [certs] Generating "etcd/peer" certificate and key
+    [certs] etcd/peer serving cert is signed for DNS names [tanzu-m1 localhost] and IPs     [192.168.1.155 127.0.0.1 ::1]
+    [certs] Generating "etcd/healthcheck-client" certificate and key
+    [certs] Generating "apiserver-etcd-client" certificate and key
+    [certs] Generating "sa" key and public key
+    [kubeconfig] Using kubeconfig folder "/etc/kubernetes"
+    [kubeconfig] Writing "admin.conf" kubeconfig file
+    [kubeconfig] Writing "kubelet.conf" kubeconfig file
+    [kubeconfig] Writing "controller-manager.conf" kubeconfig file
+    [kubeconfig] Writing "scheduler.conf" kubeconfig file
+    [control-plane] Using manifest folder "/etc/kubernetes/manifests"
+    [control-plane] Creating static Pod manifest for "kube-apiserver"
+    [control-plane] Creating static Pod manifest for "kube-controller-manager"
+    [control-plane] Creating static Pod manifest for "kube-scheduler"
+    [etcd] Creating static Pod manifest for local etcd in "/etc/kubernetes/manifests"
+    [wait-control-plane] Waiting for the kubelet to boot up the control plane as static Pods from directory "/etc/kubernetes/manifests". This can take up to 4m0s
+    [apiclient] All control plane components are healthy after 26.009437 seconds
+    [upload-config] storing the configuration used in ConfigMap "kubeadm-config" in the "kube-system" Namespace
+    [kubelet] Creating a ConfigMap "kubelet-config-1.14" in namespace kube-system with the configuration for the kubelets in the cluster
+    [upload-certs] Skipping phase. Please see --experimental-upload-certs
+    [mark-control-plane] Marking the node tanzu-m1 as control-plane by adding the label "node-role.kubernetes.io/master=''"
+    [mark-control-plane] Marking the node tanzu-m1 as control-plane by adding the taints [node-role.kubernetes.io/master:NoSchedule]
+    [bootstrap-token] Using token: y7yaev.9dvwxx6ny4ef8vlq
+    [bootstrap-token] Configuring bootstrap tokens, cluster-info ConfigMap, RBAC Roles
+    [bootstrap-token] configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials
+    [bootstrap-token] configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
+    [bootstrap-token] configured RBAC rules to allow certificate rotation for all node client certificates in the cluster
+    [bootstrap-token] creating the "cluster-info" ConfigMap in the "kube-public" namespace
+    [addons] Applied essential addon: CoreDNS
+    [addons] Applied essential addon: kube-proxy
+
+    Your Kubernetes control-plane has initialized successfully!
+
+    To start using your cluster, you need to run the following as a regular user:
+
+      mkdir -p $HOME/.kube
+      sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+      sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+    You should now deploy a pod network to the cluster.
+    Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+      https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+    Then you can join any number of worker nodes by running the following on each as root:
+
+    kubeadm join 192.168.1.155:6443 --token y7yaev.9dvwxx6ny4ef8vlq \
+    --discovery-token-ca-cert-hash sha256:a368a91e62d4dbf3702b1c749d8bc1e0627ee0656b2d042a16c2f33ae26837f4
+
+
+
 To start using your cluster, you need to run the following as a regular user (**administrator**):
-
+  
       mkdir -p $HOME/.kube
       sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
       sudo chown $(id -u):$(id -g) $HOME/.kube/config
@@ -255,9 +339,11 @@ Before we do this we'll have some more configs. You'll see the **join** later in
     kube-scheduler-k8s-master                1/1    Running   0          37s
     
     
-    # kubectl describe pod coredns-fb8b8dccf-q57f9 --namespace=kube-system
-    .
-    .
+    
+    root@tanzu-m1:~# kubectl describe pod coredns-6557d7f7d6-2w7ts --namespace=kube-system
+    ...
+    ...
+    ...
     Events:
     Type     Reason          Age                  From             Message
     ----     ------          ----                 ----             -------
@@ -284,9 +370,13 @@ each other. ( ON MASTER AS administrator USER )
 
 At this point, you can check if the overlay network is deployed.  
 
-    # kubectl get pods --namespace=kube-system  
-
-    NAME                             READY  STATUS RESTARTS AGE
+    root@tanzu-m1:~# kubectl get pods --namespace=kube-system
+    .... 
+     NAME                             READY  STATUS RESTARTS AGE
+    kube-flannel-ds-amd64-2gd7h        0/1     PodInitializing   0          52s
+    ....
+    .
+    .
     coredns-6557d7f7d6-9s7sm          0/1  Pending   0      107s
     coredns-6557d7f7d6-wgxtq          0/1  Pending   0      107s
     etcd-k8s-mstr                     1/1  Running   0      70s
@@ -301,24 +391,52 @@ Finally, the master node configuration needs to be exported as it is used by the
 
      # kubectl -n kube-public get configmap cluster-info -o jsonpath='{.data.kubeconfig}' > discovery.yaml
 
-The discovery.yaml file will need to be copied to /etc/kubernetes/discovery.yaml on your tanzu-s1 node and all other worker nodes.
+    The discovery.yaml file will need to be copied to /etc/kubernetes/discovery.yaml on your tanzu-s1 node and all other worker nodes.
+    root@tanzu-m1:~# scp discovery.yaml administrator@tanzu-s1.vlab.local:/home/administrator
+    administrator@tanzu-s1.vlab.local's password:
+    discovery.yaml 
+
+(Go to the worker node)  
+
+    su -
+    mv /home/administrator/discovery.yaml /etc/kubernetes
 
 ## Installing the Kubernetes worker node(tanzu-s1)
 
     # sudo su
-    # tee /etc/kubernetes/kubeadminitworker.yaml >/dev/null <<EOF
-    apiVersion: kubeadm.k8s.io/v1beta1 caCertPath: /etc/kubernetes/pki/ca.crt discovery:
-    file:
-    kubeConfigPath: /etc/kubernetes/discovery.yaml
-             timeout: 5m0s
-    tlsBootstrapToken: y7yaev.9dvwxx6ny4ef8vlq kind: JoinConfiguration
+    tee /etc/kubernetes/kubeadminitworker.yaml >/dev/null <<EOF
+    apiVersion: kubeadm.k8s.io/v1beta1
+    caCertPath: /etc/kubernetes/pki/ca.crt
+    discovery:
+     file:
+       kubeConfigPath: /etc/kubernetes/discovery.yaml
+     timeout: 5m0s
+     tlsBootstrapToken: y7yaev.9dvwxx6ny4ef8vlq
+    kind: JoinConfiguration
     nodeRegistration:
-    criSocket: /var/run/dockershim.sock kubeletExtraArgs: 
-    cloud-provider: external EOF
+     criSocket: /var/run/dockershim.sock
+      kubeletExtraArgs:
+        cloud-provider: external
+    EOF
     
 **copy the discovery.yaml to your local machine with scp. to /etc/kubernetes/discovery.yaml**
 
-    # kubeadm join --config /etc/kubernetes/kubeadminitworker.yaml
+    # sudo su
+    root@tanzu-s1:~# kubeadm join --config /etc/kubernetes/kubeadminitworker.yaml
+    [preflight] Running pre-flight checks
+    [preflight] Reading configuration from the cluster...
+    [preflight] FYI: You can look at this config file with 'kubectl -n kube-system get cm kubeadm-config -oyaml'
+    [kubelet-start] Downloading configuration for the kubelet from the "kubelet-config-1.14" ConfigMap in the kube-system namespace
+    [kubelet-start] Writing kubelet configuration to file "/var/lib/kubelet/config.yaml"
+    [kubelet-start] Writing kubelet environment file with flags to file "/var/lib/kubelet/kubeadm-flags.env"
+    [kubelet-start] Activating the kubelet service
+    [kubelet-start] Waiting for the kubelet to perform the TLS Bootstrap...
+
+    This node has joined the cluster:    
+    * Certificate signing request was sent to apiserver and a response was received.
+    * The Kubelet was informed of the new secure connection details.
+
+    Run 'kubectl get nodes' on the control-plane to see this node join the cluster.
     
         
 **Go to your tanzu-m1 master node**
@@ -374,15 +492,14 @@ let's go
 **port** is the vCenter Server Port. The default is 443 if not specified.  
 **datacenters** should be the list of all comma separated datacenters where kubernetes node VMs are present.  
 
-    # cd /etc/kubernetes
+    root@tanzu-m1:~# cd /etc/kubernetes
+    
     root@tanzu-m1:/etc/kubernetes# kubectl create configmap cloud-config --from-file=vsphere.conf --namespace=kube-system
     configmap/cloud-config created
 
     root@tanzu-m1:/etc/kubernetes# kubectl get configmap cloud-config --namespace=kube-system
     NAME           DATA   AGE
-    cloud-config   1      43s
-
-
+    cloud-config   1      21s
 
 ### Create a CPI secret  
 The CPI supports storing vCenter credentials either in:
@@ -575,7 +692,7 @@ The node-role.kubernetes.io/master=:NoSchedule taint is required to be present o
     administrator@tanzu-m1:~$ sudo tee /etc/kubernetes/csi-vsphere.conf >/dev/null <<EOF
     [Global]
     cluster-id = "demo-cluster-id"
-    [VirtualCenter "192.168.108"]
+    [VirtualCenter "192.168.1.108"]
     insecure-flag = "true"
     user = "administrator@vsphere.local"
     password = "Password123!" 
@@ -707,7 +824,8 @@ There is one Node per Worker. As we do have tanzu-s1 only we will have 1 Node !!
 
     # kubectl get daemonsets vsphere-csi-node --namespace=kube-system 
     NAME               DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
-    vsphere-csi-node   1         1         1       1            1           <none>          14m
+    vsphere-csi-node   1         1         1       1            1           <none>          14m  
+( 1 vsphere-csi-node = 1 worker nodes )
 
      # kubectl get pods --namespace=kube-system
      NAME                                     READY   STATUS    RESTARTS   AGE

@@ -14,9 +14,9 @@ disk.EnableUUID=1
 The following govc commands will set the disk.EnableUUID=1 on all nodes.  
 
     # export GOVC_INSECURE=1  
-    # export GOVC_URL='https://<VC_IP>'  
-    # export GOVC_USERNAME=VC_Admin_User  
-    # export GOVC_PASSWORD=VC_Admin_Passwd  
+    # export GOVC_URL='https://192.168.1.108'  
+    # export GOVC_USERNAME=administrator@vsphere.local 
+    # export GOVC_PASSWORD=Password123! 
 
     administrator@tanzu-m1:~$ govc ls
     /Datacenter/vm
