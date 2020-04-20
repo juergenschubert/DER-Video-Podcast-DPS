@@ -679,10 +679,10 @@ To Remove taints from nodes
 ( tanzu.m1 Master as regular user )  
 
     administrator@tanzu-m1:~$ kubectl describe nodes | egrep "Taints:|Name:"
-                                   Name:   tanzu-m1
-                                   Taints: node-role.kubernetes.io/master:NoSchedule
-                                   Name:   tanzu-s1
-                                   Taints: <none>
+    Name:   tanzu-m1
+    Taints: node-role.kubernetes.io/master:NoSchedule
+    Name:   tanzu-s1
+    Taints: <none>
     
 The node-role.kubernetes.io/master=:NoSchedule taint is required to be present on the master nodes to prevent scheduling of the node plugin pods for vsphere-csi-node daemonset on the master nodes. Should you need to read the taint, you can use the following command:
 
@@ -700,8 +700,7 @@ The node-role.kubernetes.io/master=:NoSchedule taint is required to be present o
     datacenters = "Datacenter"
 
     EOF
-    [sudo] password for administrator:
- 
+
 -
   
 **cluster-id** represents the unique cluster identifier. Each kubernetes cluster should have it's own unique cluster-id set in the csi-vsphere.conf file.  
@@ -712,7 +711,6 @@ The node-role.kubernetes.io/master=:NoSchedule taint is required to be present o
 **port** is the vCenter Server Port. The default is 443 if not specified.  
 **datacenters** should be the list of all comma separated datacenters where kubernetes node VMs are present.  
     
-  --
   
   
     administrator@tanzu-m1:~$ cd /etc/kubernetes
@@ -800,10 +798,10 @@ NOW we need some time. It took 10 Minutes until I saw a result !!!
     kube-scheduler-tanzu-m1                  1/1     Running             5          5d18h
     vsphere-cloud-controller-manager-n4vmk   1/1     Running             0          52m
     vsphere-csi-controller-0                 0/5     ContainerCreating   0          36s
-    vsphere-csi-node-64nzf                   0/3     ContainerCreating   0          21s
-
-
-    kubectl get pods --namespace=kube-system
+    vsphere-csi-node-64nzf                   0/3     ContainerCreating   0          21s  
+.   
+  
+    root@tanzu-m1:/home/administrator# kubectl get pods --namespace=kube-system
     NAME                                     READY   STATUS    RESTARTS   AGE
     vsphere-csi-controller-0                 0/5     Pending   0          43s
 
@@ -843,7 +841,7 @@ There is one Node per Worker. As we do have tanzu-s1 only we will have 1 Node !!
      vsphere-csi-controller-0                 0/5     Pending   0          23m
      vsphere-csi-node-pzjhj                   3/3     Running   0          15m
 
-**As long as you do have vsphere-csi-controller-0   Pending ... you will not a csi running, so no ProviderID!**
+**As long as you do have vsphere-csi-controller-0   Pending ... you will not see a csi running, so no ProviderID!**
 
      # kubectl get pods --namespace=kube-system
  
