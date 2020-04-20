@@ -39,7 +39,7 @@ spec:
             - mountPath: /csi
               name: socket-dir
         - name: vsphere-csi-controller
-          image: gcr.io/cloud-provider-vsphere/csi/release/driver:v1.0.2
+          image: gcr.io/cloud-provider-vsphere/csi/release/driver:v1.0.1
           lifecycle:
             preStop:
               exec:
@@ -53,9 +53,9 @@ spec:
             - name: X_CSI_MODE
               value: "controller"
             - name: VSPHERE_CSI_CONFIG
-              value: "/etc/cloud/csi-vsphere.conf"
+              value: "/etc/kubernetes/csi-vsphere.conf"
           volumeMounts:
-            - mountPath: /etc/cloud
+            - mountPath: /etc/kubernetes
               name: vsphere-config-volume
               readOnly: true
             - mountPath: /var/lib/csi/sockets/pluginproxy/
@@ -83,7 +83,7 @@ spec:
             - mountPath: /var/lib/csi/sockets/pluginproxy/
               name: socket-dir
         - name: vsphere-syncer
-          image: gcr.io/cloud-provider-vsphere/csi/release/syncer:v1.0.2
+          image: gcr.io/cloud-provider-vsphere/csi/release/syncer:v1.0.1
           args:
             - "--v=2"
           imagePullPolicy: "Always"
@@ -91,9 +91,9 @@ spec:
             - name: FULL_SYNC_INTERVAL_MINUTES
               value: "30"
             - name: VSPHERE_CSI_CONFIG
-              value: "/etc/cloud/csi-vsphere.conf"
+              value: "/etc/kubernetes/csi-vsphere.conf"
           volumeMounts:
-            - mountPath: /etc/cloud
+            - mountPath: /etc/kubernetes
               name: vsphere-config-volume
               readOnly: true
         - name: csi-provisioner

@@ -344,10 +344,12 @@ We are also working on some environment specific variables we need to clarfiy be
 secret-name = "cpi-global-secret"    
 secret-namespace = "kube-system"    
 VirtualCenter "192.168.1.108"  
-datacenters = "Datacenter-145"  
+datacenters = "Datacenter"  
 secret-name = "cpi-datacenter-145-secret"  
 secret-namespace = "kube-system"  
 
+    # govc ls /Datacenter/vm
+is telling me the name ! 
 let's go 
 
     # tee /etc/kubernetes/vsphere.conf >/dev/null <<EOF 
@@ -358,9 +360,10 @@ let's go
     secret-namespace = "kube-system"
     
     [VirtualCenter "192.168.1.108"] 
-    datacenters = "Datacenter-145" 
+    datacenters = "Datacenter" 
     secret-name = "cpi-datacenter-145-secret" 
     secret-namespace = "kube-system"
+    
     EOF
     
 
@@ -372,41 +375,60 @@ let's go
 **datacenters** should be the list of all comma separated datacenters where kubernetes node VMs are present.  
 
     # cd /etc/kubernetes
-    # kubectl create configmap cloud-config --from-file=vsphere.conf --namespace=kube-system
+    root@tanzu-m1:/etc/kubernetes# kubectl create configmap cloud-config --from-file=vsphere.conf --namespace=kube-system
     configmap/cloud-config created
-    
-    # kubectl get configmap cloud-config --namespace=kube-system
+
+    root@tanzu-m1:/etc/kubernetes# kubectl get configmap cloud-config --namespace=kube-system
     NAME           DATA   AGE
-    cloud-config   1      65s
+    cloud-config   1      43s
+
 
 
 ### Create a CPI secret  
-The CPI supports storing vCenter credentials either in:  
-a shared global secret containing all vCenter credentials, or  
-a secret dedicated for a particular vCenter configuration which takes precedence over anything that might be configured within the global secret  
+The CPI supports storing vCenter credentials either in:
+
+a shared global secret containing all vCenter credentials, or   
+a secret dedicated for a particular vCenter configuration which takes precedence over   anything that might be configured within the global secret
+( on master as regular user.)    
+
+    root@tanzu-m1:/etc/kubernetes# exit  
+    logout  
+    administrator@tanzu-m1:~$  
+
 
 (metadata: name: should not contain uppercase letters )  
 
-    # tee cpi-datacenter-145-secret.yml  >/dev/null <<EOF 
+    # nano cpi-datacenter-145-secret.yml   
     apiVersion: v1
     kind: Secret
     metadata:
       name: cpi-datacenter-145-secret
-      namespace: kube-system 
+      namespace: kube-system
     stringData:
-      192.168.1.108.username: "administrator@vsphere.local"  
-      192.168.1.108.password: "Password123!"  
-    EOF 
+      192.168.1.108.username: "administrator@vsphere.local"
+      192.168.1.108.password: "Password123!" 
    .
 
-    # kubectl create -f cpi-datacenter-145-secret.yml
+    administrator@tanzu-m1:~$ kubectl create -f cpi-datacenter-145-secret.yml
     secret/cpi-datacenter-145-secret created
-    # kubectl get secret cpi-datacenter-145-secret --namespace=kube-system
-     NAME                       TYPE   DATA  AGE 
-     cpi-datacenter-145-secret Opaque  2     22s
-    # kubectl describe secret cpi-datacenter-145-secret --namespace=kube-system
-     NAME                       TYPE   DATA  AGE 
-     cpi-datacenter-145-secret Opaque  2     65s
+    
+    administrator@tanzu-m1:~$ kubectl get secret cpi-datacenter-145-secret --namespace=kube-system
+    NAME                        TYPE     DATA   AGE
+    cpi-datacenter-145-secret   Opaque   2      4s
+
+    administrator@tanzu-m1:~$ kubectl describe secret cpi-datacenter-145-secret --namespace=kube-system
+    Name:         cpi-datacenter-145-secret
+    Namespace:    kube-system
+    Labels:       <none>
+    Annotations:  <none>
+
+    Type:  Opaque
+
+    Data
+    ====
+    192.168.1.108.password:  12 bytes
+    192.168.1.108.username:  27 bytes
+
      
 for multiple VCenters refer : https://cloud-provider-vsphere.sigs.k8s.io/tutorials/kubernetes-on-vsphere-with-kubeadm.html
 
@@ -415,11 +437,12 @@ for multiple VCenters refer : https://cloud-provider-vsphere.sigs.k8s.io/tutoria
 ### Check that all nodes are tainted 
 ( THIS IS IMP. IF NODES ARE NOT TAINTED THE CPI, CSI STEPS WILL HAVE ISSUES )
 
-    # kubectl describe nodes | egrep "Taints:|Name:"  
+    administrator@tanzu-m1:~$ kubectl describe nodes | egrep "Taints:|Name:"
     Name:               tanzu-m1
     Taints:             node-role.kubernetes.io/master:NoSchedule
     Name:               tanzu-s1
     Taints:             node.cloudprovider.kubernetes.io/uninitialized=true:NoSchedule
+
 
     
 ** IF NODES NEED TO BE TAINTED , USE BELOW**
@@ -438,51 +461,54 @@ for multiple VCenters refer : https://cloud-provider-vsphere.sigs.k8s.io/tutoria
 
 ### Deploy the CPI manifests  
 
-    # kubectl apply -f https://raw.githubusercontent.com/kubernetes/cloud-provider-vsphere/master/manifests/controller-manager/cloud-controller-manager-roles.yaml  
+    administrator@tanzu-m1:~$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/cloud-provider-vsphere/master/manifests/controller-manager/cloud-controller-manager-roles.yaml
     clusterrole.rbac.authorization.k8s.io/system:cloud-controller-manager created
-    
-    # kubectl apply -f https://raw.githubusercontent.com/kubernetes/cloud-provider-vsphere/master/manifests/controller-manager/cloud-controller-manager-role-bindings.yaml   
+
+    administrator@tanzu-m1:~$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/cloud-provider-vsphere/master/manifests/controller-manager/cloud-controller-manager-role-bindings.yaml
+    rolebinding.rbac.authorization.k8s.io/servicecatalog.k8s.io:apiserver-authentication-reader created
     clusterrolebinding.rbac.authorization.k8s.io/system:cloud-controller-manager created
 
-    # wget https://github.com/kubernetes/cloud-provider-vsphere/raw/master/manifests/controller-manager/vsphere-cloud-controller-manager-ds.yaml  
+    administrator@tanzu-m1:~$ wget https://github.com/kubernetes/cloud-provider-vsphere/raw/master/manifests/controller-manager/vsphere-cloud-controller-manager-ds.yaml
+    --2020-04-20 08:19:12--  https://github.com/kubernetes/cloud-provider-vsphere/raw/master/manifests/controller-manager/vsphere-cloud-controller-manager-ds.yaml
     Resolving github.com (github.com)... 140.82.112.3
     Connecting to github.com (github.com)|140.82.112.3|:443... connected.
     HTTP request sent, awaiting response... 302 Found
     Location: https://raw.githubusercontent.com/kubernetes/cloud-provider-vsphere/master/manifests/controller-manager/vsphere-cloud-controller-manager-ds.yaml [following]
-    --2020-04-17 13:36:45--  https://raw.githubusercontent.com/kubernetes/cloud-provider-vsphere/master/manifests/controller-manager/vsphere-cloud-controller-manager-ds.yaml
+    --2020-04-20 08:19:13--  https://raw.githubusercontent.com/kubernetes/cloud-provider-vsphere/master/manifests/controller-manager/vsphere-cloud-controller-manager-ds.yaml
     Resolving raw.githubusercontent.com (raw.githubusercontent.com)... 151.101.116.133
     Connecting to raw.githubusercontent.com (raw.githubusercontent.com)|151.101.116.133|:443... connected.
     HTTP request sent, awaiting response... 200 OK
     Length: 1757 (1.7K) [text/plain]
-    Saving to: âvsphere-cloud-controller-manager-ds.yamlâ
+    Saving to: âvsphere-cloud-controller-manager-ds.yaml.1â
 
-    vsphere-cloud-controller-manager-ds.yaml                   100%[========================================================================================================================================>]   1.72K  --.-KB/s    in 0s
+    vsphere-cloud-controller-manager-ds.yaml. 100%[====================================================================================>]   1.72K  --.-KB/s    in 0s
 
-    2020-04-17 13:36:46 (134 MB/s) - âvsphere-cloud-controller-manager-ds.yamlâ saved [1757/1757]
-
+    2020-04-20 08:19:14 (138 MB/s) - âvsphere-cloud-controller-manager-ds.yaml.1â saved [1757/1757]
   
     # nano vsphere-cloud-controller-manager-ds.yaml
      - Change - --cloud-config=/etc/cloud/vsphere.conf To - --cloud-config=/etc/kubernetes/vsphere.conf
      - Change - mountPath: /etc/cloud To - mountPath: /etc/kubernetes
      - Finding string is with Ctrl-W and than enter cloud-config and hit enter. Now you are in the line you wanna edit
     
-    # kubectl apply -f vsphere-cloud-controller-manager-ds.yaml
-    serviceaccount/cloud-controller-manager created 
-    daemonset.extensions/vsphere-cloud-controller-manager created 
+    administrator@tanzu-m1:~$ kubectl apply -f vsphere-cloud-controller-manager-ds.yaml
+    serviceaccount/cloud-controller-manager created
+    daemonset.apps/vsphere-cloud-controller-manager created
     service/vsphere-cloud-controller-manager created
 
 ### Verify that the CPI has been successfully deployed
-    # kubectl get pods --namespace=kube-system
-    NAME                                   READY    STATUS    RESTARTS     AGE  
-    coredns-fb8b8dccf-bq7qq                 1/1     Pending     0          71m  
-    coredns-fb8b8dccf-r47q2                 1/1     Pending     0          71m   
-    etcd-k8s-master                         1/1     Running     0          69m  
-    kube-apiserver-k8s-master               1/1     Running     0          70m  
-    kube-controller-manager-k8s-master      1/1     Running     0          69m  
-    kube-flannel-ds-amd64-7kmk9             1/1     Running     0          38m  
-    kube-proxy-6jcng                        1/1     Running     0          30m  
-    kube-scheduler-k8s-master               1/1     Running     0          70m  
-    vsphere-cloud-controller-manager-549hb  1/1     Running     0          25s  
+    administrator@tanzu-m1:~$ kubectl get pods --namespace=kube-system
+    NAME                                     READY   STATUS    RESTARTS   AGE
+    coredns-6557d7f7d6-cwh2w                 1/1     Running   2          5d17h
+    coredns-6557d7f7d6-lkmgj                 1/1     Running   2          5d17h
+    etcd-tanzu-m1                            1/1     Running   3          5d17h
+    kube-apiserver-tanzu-m1                  1/1     Running   3          5d17h
+    kube-controller-manager-tanzu-m1         1/1     Running   6          5d17h
+    kube-flannel-ds-amd64-nq84d              1/1     Running   3          5d17h
+    kube-flannel-ds-amd64-wddlj              1/1     Running   4          5d16h
+    kube-proxy-qj46g                         1/1     Running   3          5d16h
+    kube-proxy-vhfmg                         1/1     Running   3          5d17h
+    kube-scheduler-tanzu-m1                  1/1     Running   5          5d17h
+    vsphere-cloud-controller-manager-n4vmk   0/1     Pending   0          40s
     
 be patient while the coredns pods are still **Pending** and do the next step  
 
@@ -490,7 +516,7 @@ be patient while the coredns pods are still **Pending** and do the next step
 
 and come back here. With my install it took 10 minutes until it changed to  
 
-    # kubectl get pods --namespace=kube-system
+    administrator@tanzu-m1:~$ kubectl get pods --namespace=kube-system
     NAME                                   READY    STATUS    RESTARTS     AGE  
     coredns-fb8b8dccf-bq7qq                 1/1     Running     0          71m  
     coredns-fb8b8dccf-r47q2                 1/1     Running     0          71m   
@@ -502,18 +528,20 @@ and come back here. With my install it took 10 minutes until it changed to
     kube-scheduler-k8s-master               1/1     Running     0          70m  
     vsphere-cloud-controller-manager-549hb  1/1     Running     0          25s 
 
-### Check that all worker nodes are untainted
-    root@tanzu-m1:/etc/kubernetes# kubectl describe nodes | egrep "Taints:|Name:"
+
+### Check that all worker nodes are untainted  
+
+    administrator@tanzu-m1:~$ kubectl describe nodes | egrep "Taints:|Name:"
     Name:               tanzu-m1
     Taints:             node-role.kubernetes.io/master:NoSchedule
     Name:               tanzu-s1
-    Taints:             <none>  
+    Taints:             <none>
 
 **IN CASE ANY NODES are TAINTED, USE BELOW TO REMOVE TAINTS ON WORKER NODES**  
 
 To Remove taints from nodes  
   
-    root@tanzu-m1:/etc/kubernetes# kubectl describe nodes | egrep "Taints:|Name:"
+    radministrator@tanzu-m1:~$ kubectl describe nodes | egrep "Taints:|Name:"
                                    Name:    tanzu-m1
                                    Taints:  node-role.kubernetes.io/master:NoSchedule
                                    Name:    tanzu-s1
@@ -521,19 +549,19 @@ To Remove taints from nodes
     
 -
     
-    root@tanzu-m1:/home/administrator# kubectl patch node tanzu-s1 -p '{"spec":{"taints":[]}}' tanzu-s1
+    administrator@tanzu-m1:~$ kubectl patch node tanzu-s1 -p '{"spec":{"taints":[]}}' tanzu-s1
     node/tanzu-s1 patched (no change)
     node/tanzu-s1 patched (no change)
-    root@tanzu-m1:/home/administrator# kubectl describe nodes | egrep "Taints:|Name:"
+    administrator@tanzu-m1:~$ kubectl describe nodes | egrep "Taints:|Name:"
     Name:               tanzu-m1
     Taints:             node-role.kubernetes.io/master:NoSchedule
     Name:               tanzu-s1
     Taints:             <none>
 
 ## Install vSphere Container Storage Interface csi Driver
-( tanzu.m1 Master )  
+( tanzu.m1 Master as regular user )  
 
-    root@tanzu-m1:/etc/kubernetes# kubectl describe nodes | egrep "Taints:|Name:"
+    administrator@tanzu-m1:~$ kubectl describe nodes | egrep "Taints:|Name:"
                                    Name:   tanzu-m1
                                    Taints: node-role.kubernetes.io/master:NoSchedule
                                    Name:   tanzu-s1
@@ -541,19 +569,22 @@ To Remove taints from nodes
     
 The node-role.kubernetes.io/master=:NoSchedule taint is required to be present on the master nodes to prevent scheduling of the node plugin pods for vsphere-csi-node daemonset on the master nodes. Should you need to read the taint, you can use the following command:
 
-    # kubectl taint nodes tanzu-m1 node-role.kubernetes.io/master=:NoSchedule
+    administrator@tanzu-m1:~$ kubectl taint nodes tanzu-m1 node-role.kubernetes.io/master=:NoSchedule
 
 ### Create a CSI secret  
-    # tee /etc/kubernetes/csi-vsphere.conf >/dev/null <<EOF 
+    administrator@tanzu-m1:~$ sudo tee /etc/kubernetes/csi-vsphere.conf >/dev/null <<EOF
     [Global]
-    cluster-id = "demo-cluster-id" 
-    [VirtualCenter "192.168.108"] 
+    cluster-id = "demo-cluster-id"
+    [VirtualCenter "192.168.108"]
     insecure-flag = "true"
-    user = "administrator@vsphere.local" 
-    password = "Password123!"
+    user = "administrator@vsphere.local"
+    password = "Password123!" 
     port = "443"
-    datacenters = "Datacenter-145" 
+    datacenters = "Datacenter"
+
     EOF
+    [sudo] password for administrator:
+ 
 -
   
 **cluster-id** represents the unique cluster identifier. Each kubernetes cluster should have it's own unique cluster-id set in the csi-vsphere.conf file.  
@@ -565,14 +596,15 @@ The node-role.kubernetes.io/master=:NoSchedule taint is required to be present o
 **datacenters** should be the list of all comma separated datacenters where kubernetes node VMs are present.  
     
   --
-    
-     # cd /etc/kubernetes  
-     # kubectl create secret generic vsphere-config-secret --from-file=csi-vsphere.conf --namespace=kube-system
-     secret/vsphere-config-secret created
+  
+  
+    administrator@tanzu-m1:~$ cd /etc/kubernetes
+    administrator@tanzu-m1:/etc/kubernetes$ kubectl create secret generic vsphere-config-secret --from-file=csi-vsphere.conf --namespace=kube-system
+    secret/vsphere-config-secret created
 
-     # kubectl get secret vsphere-config-secret --namespace=kube-system
+    administrator@tanzu-m1:/etc/kubernetes$ kubectl get secret vsphere-config-secret --namespace=kube-system
     NAME                    TYPE     DATA   AGE
-    vsphere-config-secret   Opaque   1      20s
+    vsphere-config-secret   Opaque   1      2m27s
    
     # rm /etc/kubernetes/csi-vsphere.conf
 
@@ -595,7 +627,11 @@ The first time? So not run the kubectl delete as they will tell you that they ca
 
 This will remove the ServiceAccount, ClusterRole and ClusterRoleBinding.  
 
-    kubectl delete -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/v1.0.2/rbac/vsphere-csi-controller-rbac.yaml 
+     administrator@tanzu-m1:/etc/kubernetes$ kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/v2.0.0/vsphere-67u3/vanilla/rbac/vsphere-csi-controller-rbac.yaml
+     serviceaccount/vsphere-csi-controller unchanged
+     clusterrole.rbac.authorization.k8s.io/vsphere-csi-controller-role configured
+     clusterrolebinding.rbac.authorization.k8s.io/vsphere-csi-controller-binding unchanged
+
 ----
 
 Let's create the  ServiceAccount, ClusterRole and ClusterRoleBinding  
@@ -607,35 +643,48 @@ Let's create the  ServiceAccount, ClusterRole and ClusterRoleBinding
 
 ### Install the vSphere CSI driver
 
+quay.io/k8scsi/csi-attacher:v1.1.1
+quay.io/k8scsi/livenessprobe:v1.1.0
+quay.io/k8scsi/csi-provisioner:v1.2.2
+gcr.io/cloud-provider-vsphere/csi/release/driver:v1.0.1
+gcr.io/cloud-provider-vsphere/csi/release/syncer:v1.0.1
+
+kubectl delete -f vsphere-csi-controller-ss.yaml
+kubectl delete -f vsphere-csi-node-ds.yaml
+
 [Troubles with new csi dirver](https://github.com/juergenschubert/DER-Video-Podcast-DPS)
 
-PICK THE LATEST CSI DRIVER ALWAYS. AS OF MARCH 2020 , the latest one is v1.0.2. I have added them into my github, but you can alos find them: [v1.0.2.deployment and DaemonSet](https://github.com/kubernetes-sigs/vsphere-csi-driver/pull/179/commits/f60041e1e1eb3252069420312356dd77a25ad746)
+    root@tanzu-m1:/home/administrator# kubectl apply -f vsphere-csi-controller-ss.yaml
+    statefulset.apps/vsphere-csi-controller created
 
-I am using: [https://github.com/kubernetes-sigs/vsphere-csi-driver/tree/master/manifests/](CSI Manifest) 1.0.2  
-
---
-kubectl delete, in case you run through this not the first time. The first time? So not run the kubectl delete as they will tell you that they cannnot !!  
-
-    kubectl delete -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/v1.0.2/deploy/vsphere-csi-controller-ss.yaml
-    kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/v1.0.2/deploy/vsphere-csi-node-ds.yaml
---    
-    
-Create the [vsphere-csi-controller](https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/v1.0.2/deploy/vsphere-csi-controller-ss.yaml)
-
-    root@tanzu-m1:/etc/kubernetes# kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/v1.0.2/deploy/vsphere-csi-controller-ss.yaml
-    statefulset.apps/vsphere-csi-controller created    
-    csidriver.storage.k8s.io/csi.vsphere.vmware.com created    
  
  This has create in my environemnt the ***vsphere-csi-controller-0*** with a replicaset of 1    
  
- Create the [DaemonSet](https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/v1.0.2/deploy/vsphere-csi-node-ds.yaml)
- 
-    root@tanzu-m1:/etc/kubernetes# kubectl apply -f https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/manifests/v1.0.2/deploy/vsphere-csi-node-ds.yaml
+
+    root@tanzu-m1:/home/administrator# kubectl apply -f vsphere-csi-node-ds.yaml
     daemonset.apps/vsphere-csi-node created
+
 
 this will creat a **DaemonSet**. [explain DaemonSet](https://kubernetes.io/docs/concepts/workloads/controllers/daemonset/)
 
 NOW we need some time. It took 10 Minutes until I saw a result !!!  
+
+    root@tanzu-m1:/home/administrator# kubectl get pods --namespace=kube-system
+    NAME                                     READY   STATUS              RESTARTS   AGE
+    coredns-6557d7f7d6-cwh2w                 1/1     Running             2          5d18h
+    coredns-6557d7f7d6-lkmgj                 1/1     Running             2          5d18h
+    etcd-tanzu-m1                            1/1     Running             3          5d18h
+    kube-apiserver-tanzu-m1                  1/1     Running             3          5d18h
+    kube-controller-manager-tanzu-m1         1/1     Running             6          5d18h
+    kube-flannel-ds-amd64-nq84d              1/1     Running             3          5d17h
+    kube-flannel-ds-amd64-wddlj              1/1     Running             4          5d17h
+    kube-proxy-qj46g                         1/1     Running             3          5d17h
+    kube-proxy-vhfmg                         1/1     Running             3          5d18h
+    kube-scheduler-tanzu-m1                  1/1     Running             5          5d18h
+    vsphere-cloud-controller-manager-n4vmk   1/1     Running             0          52m
+    vsphere-csi-controller-0                 0/5     ContainerCreating   0          36s
+    vsphere-csi-node-64nzf                   0/3     ContainerCreating   0          21s
+
 
     kubectl get pods --namespace=kube-system
     NAME                                     READY   STATUS    RESTARTS   AGE
@@ -644,6 +693,8 @@ NOW we need some time. It took 10 Minutes until I saw a result !!!
 A Pending pod can be troubleshooted with:  
 
      kubectl describe pods vsphere-csi-controller-0 --namespace=kube-system
+     
+     troubleshoot and redo 
 
 ### Verify that CSI has been successfully deployed
 
