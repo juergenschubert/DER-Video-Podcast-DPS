@@ -42,6 +42,17 @@ What we need are two VM with UBUNTU and on HW Version 15 for some K8s features. 
 
 ## Step 1 vSphere 6.7 U3
 get vSphere 6.7 U3 running (check Hardware 15). Hardware 15 is the version we are using to install Ubuntu on.
+Check the vSphere version:
+ Log in to the vSphere Web Client.  
+ Click Home.  
+ Click Hosts and Clusters.  
+ Expand the datacenter.  
+ Expand the cluster  
+ Click the ESXi host 
+ Click the Summary tab  
+ Under Configuration there will be a ESX/ESXi Version field:
+ 
+[Build numbers and versions of VMware ESXi/ESX to comapre with](https://kb.vmware.com/s/article/2143832)
 
 ## Step 2 Create both VM
 I do name them **tanzu-m1** und **tanzu-s1**, m1 for master and s1 for the first worker. Logins are administrator and root on all server :-)  Just in case you do see, my password are **Password123!**.
