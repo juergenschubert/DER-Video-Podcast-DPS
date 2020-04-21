@@ -118,7 +118,10 @@ SSH into all K8s worker nodes and disable swap on all nodes including master nod
     tanzu-m.vlab.local
 [Hostname/Domain/FQDN](https://gridscale.io/community/tutorials/hostname-fqdn-ubuntu/)  
 
-#### Govc commandline tool  
+#### Govc commandline tool 
+govc is a vSphere CLI built on top of govmomi.  
+The CLI is designed to be a user friendly CLI alternative to the GUI and well suited for automation tasks for vCenter interaction from the commandline. So automate what you can do within vCenter
+
 download govc_linux_amd64.gz  
 
     wget https://github.com/vmware/govmomi/releases/download/v0.22.1/govc_linux_amd64.gz
