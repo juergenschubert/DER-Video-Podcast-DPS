@@ -52,6 +52,9 @@ Check the vSphere version:
  Click the Summary tab  
  Under Configuration there will be a ESX/ESXi Version field:
  
+    Here's the value from my ESXi: VMware ESXi, 6.7.0, 14320388
+    which is : ESXi 6.7 Update 3
+ 
 [Build numbers and versions of VMware ESXi/ESX to comapre with](https://kb.vmware.com/s/article/2143832)
 
 ## Step 2 Create both VM
@@ -111,8 +114,9 @@ Tools I am talking about and I am using are:
 ## Install Ubuntu 18.04.4 LTS (Bionic Beaver) 
 Before we can start with the Ubuntu install I prefer to download a ISO file [http://releases.ubuntu.com/18.04.4/](download)  I can mount in the VM as a CD so it starts off that iso. So I am booting from this ISO file which does contain the latest Ubuntu Bionic Beaver version.   
 Hostname tanzu-m1 for master and tanzu-s1 for Worker both should be in DNS with FQDN  
-  # ip a  
-[How to disable IPv6 address on Ubuntu 18.04 Bionic Beaver Linux](https://linuxconfig.org/how-to-disable-ipv6-address-on-ubuntu-18-04-bionic-beaver-linux)
+
+More details on how to setup can be found here 
+
 
 ## Setting up VMs in the Guest OS
 After Ubuntu install and configure k8s components on the Ubuntu OS virtual machines are next. Some components must be installed on all of the nodes. In other cases, some of the components need only be installed on the master, and in other cases, only the workers. In each case, where the components are installed is highlighted. All installation and configuration commands should be executed with root privilege. You can switch to the root environment using the "sudo su" command. But before we can start with k8s componentes we need to prepare Ubuntu a bit.  
@@ -619,9 +623,13 @@ for multiple VCenters refer : https://cloud-provider-vsphere.sigs.k8s.io/tutoria
     2020-04-20 08:19:14 (138 MB/s) - âvsphere-cloud-controller-manager-ds.yaml.1â saved [1757/1757]
   
     # nano vsphere-cloud-controller-manager-ds.yaml
-     - Change - --cloud-config=/etc/cloud/vsphere.conf To - --cloud-config=/etc/kubernetes/vsphere.conf
-     - Change - mountPath: /etc/cloud To - mountPath: /etc/kubernetes
-     - Finding string is with Ctrl-W and than enter cloud-config and hit enter. Now you are in the line you wanna edit
+
+- Change - --cloud-config=/etc/cloud/vsphere.conf To - --cloud-config=/etc/kubernetes/vsphere.conf  
+- Change - mountPath: /etc/cloud To - mountPath: /etc/kubernetes  
+
+Finding string within nano / Ctrl-W for word and than enter cloud-config and hit enter. Now you are in the line you wanna edit  
+
+
     
     administrator@tanzu-m1:~$ kubectl apply -f vsphere-cloud-controller-manager-ds.yaml
     serviceaccount/cloud-controller-manager created
