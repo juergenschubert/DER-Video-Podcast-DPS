@@ -110,7 +110,9 @@ Tools I am talking about and I am using are:
 
 ## Install Ubuntu 18.04.4 LTS (Bionic Beaver) 
 Before we can start with the Ubuntu install I prefer to download a ISO file [http://releases.ubuntu.com/18.04.4/](download)  I can mount in the VM as a CD so it starts off that iso. So I am booting from this ISO file which does contain the latest Ubuntu Bionic Beaver version.   
-Hostname tanzu-m1 for master and tanzu-s1 for Worker both should be in DNS with FQDN
+Hostname tanzu-m1 for master and tanzu-s1 for Worker both should be in DNS with FQDN  
+  # ip a  
+[How to disable IPv6 address on Ubuntu 18.04 Bionic Beaver Linux](https://linuxconfig.org/how-to-disable-ipv6-address-on-ubuntu-18-04-bionic-beaver-linux)
 
 ## Setting up VMs in the Guest OS
 After Ubuntu install and configure k8s components on the Ubuntu OS virtual machines are next. Some components must be installed on all of the nodes. In other cases, some of the components need only be installed on the master, and in other cases, only the workers. In each case, where the components are installed is highlighted. All installation and configuration commands should be executed with root privilege. You can switch to the root environment using the "sudo su" command. But before we can start with k8s componentes we need to prepare Ubuntu a bit.  
