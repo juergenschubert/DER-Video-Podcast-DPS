@@ -1,7 +1,8 @@
 #Container you should see on your Kubernetes Nodes
 
-##Master
-adminuser@k8-master:~$ sudo docker image ls
+##Master  
+adminuser@k8-master:~$ sudo docker image ls  
+
 REPOSITORY                                          TAG                 IMAGE ID            CREATED             SIZE  
 gcr.io/cloud-provider-vsphere/csi/release/syncer    v1.0.2              2b11efaf3392        2 months ago        99.3MB  
 gcr.io/cloud-provider-vsphere/csi/release/driver    v1.0.2              34cd0ef118af        2 months ago        146MB  
@@ -21,7 +22,6 @@ adminuser@k8-master:~$
 
 ##Worker
 adminuser@k8-node:~$ sudo docker image ls  
-[sudo] password for adminuser:  
 REPOSITORY                                         TAG                 IMAGE ID            CREATED             SIZE  
 dellemc/powerprotect-k8s-controller                19.4.0-6            8659348c5492        4 weeks ago         257MB  
 dellemc/powerprotect-velero-dd                     19.4.0-6            bb73a3645f81        4 weeks ago         188MB  
