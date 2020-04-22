@@ -114,9 +114,8 @@ Tools I am talking about and I am using are:
 ## Install Ubuntu 18.04.4 LTS (Bionic Beaver) 
 Before we can start with the Ubuntu install I prefer to download a ISO file [http://releases.ubuntu.com/18.04.4/](download)  I can mount in the VM as a CD so it starts off that iso. So I am booting from this ISO file which does contain the latest Ubuntu Bionic Beaver version.   
 Hostname tanzu-m1 for master and tanzu-s1 for Worker both should be in DNS with FQDN  
-
-More details on how to setup can be found here 
-
+ 
+[More details on how to setup network can be found here](https://github.com/juergenschubert/DER-Video-Podcast-DPS/blob/master/Tanzu%20K8s/How%20to%20network%20config.md)
 
 ## Setting up VMs in the Guest OS
 After Ubuntu install and configure k8s components on the Ubuntu OS virtual machines are next. Some components must be installed on all of the nodes. In other cases, some of the components need only be installed on the master, and in other cases, only the workers. In each case, where the components are installed is highlighted. All installation and configuration commands should be executed with root privilege. You can switch to the root environment using the "sudo su" command. But before we can start with k8s componentes we need to prepare Ubuntu a bit.  
@@ -133,11 +132,14 @@ SSH into all K8s worker nodes and disable swap on all nodes including master nod
     tanzu-m1
     # hostname -f
     tanzu-m.vlab.local
-[Hostname/Domain/FQDN](https://gridscale.io/community/tutorials/hostname-fqdn-ubuntu/)  
+    # ping 8.8.8.8
+    
+[Hostname/Domain/FQDN](https://gridscale.io/community/tutorials/hostname-fqdn-ubuntu/)   
+[More details on how to setup network can be found here](https://github.com/juergenschubert/DER-Video-Podcast-DPS/blob/master/Tanzu%20K8s/How%20to%20network%20config.md)
 
 #### Govc commandline tool 
 govc is a vSphere CLI built on top of govmomi.  
-The CLI is designed to be a user friendly CLI alternative to the GUI and well suited for automation tasks for vCenter interaction from the commandline. So automate what you can do within vCenter
+The CLI is designed to be a user friendly CLI alternative to the GUI and well suited for automation tasks for vCenter interaction from the commandline. So automate what you can do within vCenter.
 
 download govc_linux_amd64.gz  
 
