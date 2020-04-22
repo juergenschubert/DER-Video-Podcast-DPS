@@ -141,13 +141,13 @@ SSH into all K8s worker nodes and disable swap on all nodes including master nod
 govc is a vSphere CLI built on top of govmomi.  
 The CLI is designed to be a user friendly CLI alternative to the GUI and well suited for automation tasks for vCenter interaction from the commandline. So automate what you can do within vCenter.
 
-download govc_linux_amd64.gz  
+ 
+Download the file relevant to your operating system .. download govc_linux_amd64.gz   
 
-    wget https://github.com/vmware/govmomi/releases/download/v0.22.1/govc_linux_amd64.gz
+    wget https://github.com/vmware/govmomi/releases/download/v0.22.1/govc_linux_amd64.gz  
 
-Download the file relevant to your operating system
-Decompress (i.e. gzip -d govc_linux_amd64.gz)
-Set the executable bit (i.e. chmod +x govc_linux_amd64)
+Decompress (i.e. gzip -d govc_linux_amd64.gz)  
+Set the executable bit (i.e. chmod +x govc_linux_amd64)  
 Move the file to a directory in your $PATH (i.e. mv govc_linux_amd64 /usr/local/bin/govc)
 
 [Govc cmdl Tool and steps ](https://github.com/juergenschubert/DER-Video-Podcast-DPS/blob/master/Tanzu%20K8s/govc%20howto.md)

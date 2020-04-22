@@ -10,7 +10,7 @@ If not !
     sudo apt install resolvconf
     sudo nano /etc/resolvconf/resolv.conf.d/head
 
-add the follwoing lines
+add the following lines to add the DNS Server
 
     # Make edits to /etc/resolvconf/resolv.conf.d/head.
     nameserver 8.8.4.4
