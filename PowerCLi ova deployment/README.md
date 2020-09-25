@@ -1,4 +1,4 @@
-# PowerCLI ova deployment.ps1   
+# PowerCLI ova deployment
 UseCase: need more than one ova deployment -> IDEA automate it with PowerShell
 
 ## AVE -  automated ova deployment
