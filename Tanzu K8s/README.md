@@ -58,7 +58,7 @@ Check the vSphere version:
 [Build numbers and versions of VMware ESXi/ESX to comapre with](https://kb.vmware.com/s/article/2143832)
 
 ## Step 2 Create both VM
-I do name them **tanzu-m1** und **tanzu-s1**, m1 for master and s1 for the first worker. Logins are administrator and root on all server :-)  Just in case you do see, my password are **Password123!**.
+I do name them **tanzu-m1** und **tanzu-w1**, m1 for master and s1 for the first worker. Logins are administrator and root on all server :-)  Just in case you do see, my password are **Password123!**.
 
 ### Create a new VM with the following properties :
 Compatibility : ESXi 6.7 Update 2 and later (HW version 15)
@@ -113,7 +113,7 @@ Tools I am talking about and I am using are:
 
 ## Install Ubuntu 18.04.4 LTS (Bionic Beaver) 
 Before we can start with the Ubuntu install I prefer to download a ISO file [http://releases.ubuntu.com/18.04.4/](download)  I can mount in the VM as a CD so it starts off that iso. So I am booting from this ISO file which does contain the latest Ubuntu Bionic Beaver version.   
-Hostname tanzu-m1 for master and tanzu-s1 for Worker both should be in DNS with FQDN  
+Hostname tanzu-m1 for master and tanzu-w1 for Worker both should be in DNS with FQDN  
  
 [More details on how to setup network can be found here](https://github.com/juergenschubert/DER-Video-Podcast-DPS/blob/master/Tanzu%20K8s/How%20to%20network%20config.md)
 
@@ -136,7 +136,8 @@ SSH into all K8s worker nodes and disable swap on all nodes including master nod
     
 [Hostname/Domain/FQDN](https://gridscale.io/community/tutorials/hostname-fqdn-ubuntu/)   
 [More details on how to setup network can be found here](https://github.com/juergenschubert/DER-Video-Podcast-DPS/blob/master/Tanzu%20K8s/How%20to%20network%20config.md)
-
+### Check Ubuntu network
+     # more /usr/lib/NetworkManager/conf.d/10-globally-managed-devices.conf
 #### Govc commandline tool 
 govc is a vSphere CLI built on top of govmomi.  
 The CLI is designed to be a user friendly CLI alternative to the GUI and well suited for automation tasks for vCenter interaction from the commandline. So automate what you can do within vCenter.
@@ -154,7 +155,7 @@ Move the file to a directory in your $PATH (i.e. mv govc_linux_amd64 /usr/local/
 
 
 Duing install I will make sure that I can use a fixed IP and DNS entry from both systems.  
-**tanzu-m1.vlab.local** und **tanzu-s1.vlab.local**  
+**tanzu-m1.vlab.local** und **tanzu-w1.vlab.local**  
 Just you are running into issues on the network config with netplan or/ and a DNS resolution topic. The below mentioned articles helped me to fix these issues.  
 
 [Netzwerkconfig Hilfe und Troubleshooting -_Netplan](https://www.thomas-krenn.com/de/wiki/Netzwerk-Konfiguration_Ubuntu_-_Netplan)   
@@ -192,7 +193,7 @@ Just you are running into issues on the network config with netplan or/ and a DN
     Server Version: 18.06.0-ce
     Cgroup Driver: systemd  
 ## Install Kubelet, Kubectl, Kubeadm
-On both tanzu-m1 and tanzu-s1, on master and worker  
+On both tanzu-m1 and tanzu-w1, on master and worker  
   
     # sudo su
     # curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
@@ -409,13 +410,13 @@ At this point, you can check if the overlay network is deployed.
     kube-scheduler-k8s-mstr           1/1  Running   0      49s
 
 ## Export the master node configuration to worker nodes
-Finally, the master node configuration needs to be exported as it is used by the tanzu-s1 wishing to join to the master.  
+Finally, the master node configuration needs to be exported as it is used by the tanzu-w1 wishing to join to the master.  
 
      # kubectl -n kube-public get configmap cluster-info -o jsonpath='{.data.kubeconfig}' > discovery.yaml
 
-    The discovery.yaml file will need to be copied to /etc/kubernetes/discovery.yaml on your tanzu-s1 node and all other worker nodes.
-    root@tanzu-m1:~# scp discovery.yaml administrator@tanzu-s1.vlab.local:/home/administrator
-    administrator@tanzu-s1.vlab.local's password:
+    The discovery.yaml file will need to be copied to /etc/kubernetes/discovery.yaml on your tanzu-w1 node and all other worker nodes.
+    root@tanzu-m1:~# scp discovery.yaml administrator@tanzu-w1.vlab.local:/home/administrator
+    administrator@tanzu-w1.vlab.local's password:
     discovery.yaml 
 
 (Go to the worker node)  
@@ -423,7 +424,7 @@ Finally, the master node configuration needs to be exported as it is used by the
     su -
     mv /home/administrator/discovery.yaml /etc/kubernetes
 
-## Installing the Kubernetes worker node(tanzu-s1)
+## Installing the Kubernetes worker node(tanzu-w1)
 
     # sudo su
     tee /etc/kubernetes/kubeadminitworker.yaml >/dev/null <<EOF
@@ -444,7 +445,7 @@ Finally, the master node configuration needs to be exported as it is used by the
 **copy the discovery.yaml to your local machine with scp. to /etc/kubernetes/discovery.yaml**
 
     # sudo su
-    root@tanzu-s1:~# kubeadm join --config /etc/kubernetes/kubeadminitworker.yaml
+    root@tanzu-w1:~# kubeadm join --config /etc/kubernetes/kubeadminitworker.yaml
     [preflight] Running pre-flight checks
     [preflight] Reading configuration from the cluster...
     [preflight] FYI: You can look at this config file with 'kubectl -n kube-system get cm kubeadm-config -oyaml'
@@ -466,13 +467,13 @@ Finally, the master node configuration needs to be exported as it is used by the
     # administrator@tanzu-m1:~$ kubectl get nodes -o wide
     NAME       STATUS   ROLES    AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION      CONTAINER-RUNTIME
     tanzu-m1   Ready    master   20h   v1.14.2   <none>        <none>        Ubuntu 18.04.4 LTS   4.15.0-96-generic   docker://18.6.0
-    tanzu-s1   Ready    <none>   19h   v1.14.2   <none>        <none>        Ubuntu 18.04.4 LTS   4.15.0-96-generic   docker://18.6.0
+    tanzu-w1   Ready    <none>   19h   v1.14.2   <none>        <none>        Ubuntu 18.04.4 LTS   4.15.0-96-generic   docker://18.6.0
 
 
     # root@tanzu-m1:/home/administrator# kubectl get nodes
     NAME       STATUS   ROLES    AGE     VERSION
     tanzu-m1   Ready    master   65m     v1.14.2
-    tanzu-s1   Ready    <none>   3m28s   v1.14.2
+    tanzu-w1   Ready    <none>   3m28s   v1.14.2
 
 ## Install the vSphere Cloud Provider Interface
 (on the tanzu-m1 Master )
@@ -579,22 +580,22 @@ for multiple VCenters refer : https://cloud-provider-vsphere.sigs.k8s.io/tutoria
     administrator@tanzu-m1:~$ kubectl describe nodes | egrep "Taints:|Name:"
     Name:               tanzu-m1
     Taints:             node-role.kubernetes.io/master:NoSchedule
-    Name:               tanzu-s1
+    Name:               tanzu-w1
     Taints:             node.cloudprovider.kubernetes.io/uninitialized=true:NoSchedule
 
 
     
 ** IF NODES NEED TO BE TAINTED , USE BELOW**
 
-    root@tanzu-m1:/home/administrator# kubectl taint nodes tanzu-s1 node.cloudprovider.kubernetes.io/uninitialized=true:NoSchedule
-    node/tanzu-s1 tainted
+    root@tanzu-m1:/home/administrator# kubectl taint nodes tanzu-w1 node.cloudprovider.kubernetes.io/uninitialized=true:NoSchedule
+    node/tanzu-w1 tainted
  
-    root@tanzu-m1:/home/administrator# kubectl taint nodes tanzu-s1 node.cloudprovider.kubernetes.io/uninitialized=true:NoSchedule
-    node/tanzu-s1 tainted
+    root@tanzu-m1:/home/administrator# kubectl taint nodes tanzu-w1 node.cloudprovider.kubernetes.io/uninitialized=true:NoSchedule
+    node/tanzu-w1 tainted
     root@tanzu-m1:/home/administrator# kubectl describe nodes | egrep "Taints:|Name:"
     Name:               tanzu-m1
     Taints:             node-role.kubernetes.io/master:NoSchedule
-    Name:               tanzu-s1
+    Name:               tanzu-w1
     Taints:             node.cloudprovider.kubernetes.io/uninitialized=true:NoSchedule
 
 
@@ -677,7 +678,7 @@ and come back here. With my install it took 10 minutes until it changed to
     administrator@tanzu-m1:~$ kubectl describe nodes | egrep "Taints:|Name:"
     Name:               tanzu-m1
     Taints:             node-role.kubernetes.io/master:NoSchedule
-    Name:               tanzu-s1
+    Name:               tanzu-w1
     Taints:             <none>
 
 **IN CASE ANY NODES are TAINTED, USE BELOW TO REMOVE TAINTS ON WORKER NODES**  
@@ -687,18 +688,18 @@ To Remove taints from nodes
     radministrator@tanzu-m1:~$ kubectl describe nodes | egrep "Taints:|Name:"
                                    Name:    tanzu-m1
                                    Taints:  node-role.kubernetes.io/master:NoSchedule
-                                   Name:    tanzu-s1
+                                   Name:    tanzu-w1
                                    Taints:  node.cloudprovider.kubernetes.io/uninitialized=true:NoSchedule
     
 -
     
-    administrator@tanzu-m1:~$ kubectl patch node tanzu-s1 -p '{"spec":{"taints":[]}}' tanzu-s1
-    node/tanzu-s1 patched (no change)
-    node/tanzu-s1 patched (no change)
+    administrator@tanzu-m1:~$ kubectl patch node tanzu-w1 -p '{"spec":{"taints":[]}}' tanzu-w1
+    node/tanzu-w1 patched (no change)
+    node/tanzu-w1 patched (no change)
     administrator@tanzu-m1:~$ kubectl describe nodes | egrep "Taints:|Name:"
     Name:               tanzu-m1
     Taints:             node-role.kubernetes.io/master:NoSchedule
-    Name:               tanzu-s1
+    Name:               tanzu-w1
     Taints:             <none>
 
 ## Install vSphere Container Storage Interface csi Driver
@@ -707,7 +708,7 @@ To Remove taints from nodes
     administrator@tanzu-m1:~$ kubectl describe nodes | egrep "Taints:|Name:"
     Name:   tanzu-m1
     Taints: node-role.kubernetes.io/master:NoSchedule
-    Name:   tanzu-s1
+    Name:   tanzu-w1
     Taints: <none>
     
 The node-role.kubernetes.io/master=:NoSchedule taint is required to be present on the master nodes to prevent scheduling of the node plugin pods for vsphere-csi-node daemonset on the master nodes. Should you need to read the taint, you can use the following command:
@@ -844,7 +845,7 @@ A Pending pod can be troubleshooted with:
     NAME                     READY   AGE
     vsphere-csi-controller   0/1     22m
 
-There is one Node per Worker. As we do have tanzu-s1 only we will have 1 Node !!  
+There is one Node per Worker. As we do have tanzu-w1 only we will have 1 Node !!  
 
     # kubectl get daemonsets vsphere-csi-node --namespace=kube-system 
     NAME               DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR   AGE
@@ -874,17 +875,17 @@ There is one Node per Worker. As we do have tanzu-s1 only we will have 1 Node !!
  
      # kubectl get CSINode
      NAME       CREATED AT
-     tanzu-s1   2020-04-17T18:59:27Z
+     tanzu-w1   2020-04-17T18:59:27Z
 
 ### Verify that the CSI Custom Resource Definitions are working
 
 To list the CSI NODES
     root@tanzu-m1:/etc/kubernetes# kubectl get CSINode
     NAME       CREATED AT
-    tanzu-s1   2020-04-17T18:59:27Z
+    tanzu-w1   2020-04-17T18:59:27Z
 
     root@tanzu-m1:/etc/kubernetes# kubectl describe CSINode
-    Name:         tanzu-s1
+    Name:         tanzu-w1
     Namespace:
     Labels:       <none>
     Annotations:  <none>
@@ -895,15 +896,15 @@ To list the CSI NODES
       Owner References:
         API Version:     v1
         Kind:            Node
-        Name:            tanzu-s1
+        Name:            tanzu-w1
         UID:             c0440fea-7e65-11ea-bb01-005056839255
       Resource Version:  256224
-      Self Link:         /apis/storage.k8s.io/v1beta1/csinodes/tanzu-s1
+      Self Link:         /apis/storage.k8s.io/v1beta1/csinodes/tanzu-w1
       UID:               8fe20c92-80dd-11ea-88e0-005056839255
     Spec:
       Drivers:
         Name:           csi.vsphere.vmware.com
-        Node ID:        tanzu-s1
+        Node ID:        tanzu-w1
         Topology Keys:  <nil>
     Events:             <none>
 -
@@ -942,7 +943,7 @@ we are checking above the two values
     root@tanzu-m1:/etc/kubernetes# kubectl get nodes
     NAME       STATUS   ROLES    AGE     VERSION
     tanzu-m1   Ready    master   3d18h   v1.14.2
-    tanzu-s1   Ready    <none>   3d17h   v1.14.2
+    tanzu-w1   Ready    <none>   3d17h   v1.14.2
 
 
 ### Verify ProviderID has been added the nodes
