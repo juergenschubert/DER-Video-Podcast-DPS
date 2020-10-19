@@ -1,8 +1,6 @@
-# PowerCLI ova deployment
+# PowerCLI ova deployment of PPDM
 UseCase: need more than one ova deployment -> IDEA automate it with PowerShell
 
-## AVE -  automated ova deployment
-## NVE - fully automated ova deployment
 
 ### requirement:    
 Window 10  
@@ -15,14 +13,3 @@ How-to can be found: https://adamtheautomator.com/download-install-vmware-powerc
 
 Download the ps1 file and start your Windows PowerShell ISE and open the ps1 file
 walk through each line !!!
-
-#### PPDM Werte
-Name                        
-
-NetworkMapping.VM Network      
-vami.gateway.brs               
-vami.DNS.brs                   
-vami.ip0.brs                   
-vami.netmask0.brs              
-vami.fqdn.brs                  
-IpAssignment.IpProtocol
