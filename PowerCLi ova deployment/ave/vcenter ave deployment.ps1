@@ -1,5 +1,5 @@
 ﻿$vCenter = "vc.vlab.local"
-$aveName = "ave-19-1"
+$VMname = "ave-19-1"
 $ovfFile = "S:\avamar\19_1\AVE-19.1.0.38.ova"
 
 ###########
@@ -29,7 +29,7 @@ $ovfconfig.ToHashTable() | ft –autosize
 
 Write-Output "Waiting for AVE VM deployment..."
 $startTime = get-date
-$avamarVM = Import-VApp -Source $ovfFile -OvfConfiguration $ovfConfig -Name "$aveName" -VMHost $VMHost -Datastore $dataStore -DiskStorageFormat thin
+$avamarVM = Import-VApp -Source $ovfFile -OvfConfiguration $ovfConfig -Name "$VMname" -VMHost $VMHost -Datastore $dataStore -DiskStorageFormat thin
 $endTime = get-date
 
 $DeploymentTime = $endTime - $startTime
