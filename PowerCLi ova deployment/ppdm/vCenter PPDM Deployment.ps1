@@ -17,14 +17,13 @@ $ovfConfig = Get-OvfConfiguration $ovfFile
 ###########
 # Enter the DDVE configuration parameters
 ###########
-$ovfConfig.IpProtocol.value = "IPv4"
-$ovfConfig.VM Network.value = "VM Network"
-
-$ovfConfig.ip0.brs.value = "192.168.1.55"
-$ovfConfig.gateway.brs.value = "192.168.1.1"
-$ovfConfig.netmask0.brs.Value = "255.255.255.0"
-$ovfConfig.DNS.brs.value = "192.168.1.1"
-$ovfConfig.fqdn.brs.value = "ppdm1.vlab.local"
+$ovfConfig.IpAssignment.IpProtocol.value = "IPv4"
+$ovfConfig.NetworkMapping.VM Network.value = "VM Network"
+$ovfConfig.vami.ip0.brs.value = "192.168.1.55"
+$ovfConfig.vami.gateway.brs.value = "192.168.1.1"
+$ovfConfig.vami.netmask0.brs.Value = "255.255.255.0"
+$ovfConfig.vami.DNS.brs.value = "192.168.1.1"
+$ovfConfig.vami.fqdn.brs.value = "ppdm1.vlab.local"
 
 ##########
 # Select: vmhost, datastore, network to configure the DDVE
