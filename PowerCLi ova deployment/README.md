@@ -1,4 +1,4 @@
-# PowerCLI ova deployment of PPDM
+# PowerCLI ova deployment of dps products
 UseCase: need more than one ova deployment -> IDEA automate it with PowerShell
 
 NetWorker, Avamar, DataDomain and PowerProtectDataManager auto deployment with PowerCli on vSphere.   
