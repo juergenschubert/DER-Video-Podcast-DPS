@@ -1,3 +1,10 @@
+# Update-Module -force
+
+# update help
+# update-help -force
+
+# Install PowerCLI
+# Install-Module -Name vmware.powercli -AllowClobber
 $vCenter = "vc.vlab.local"
 $VMname = "DDVE6"
 
