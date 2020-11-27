@@ -48,14 +48,23 @@ Install-Module -Name Posh-SSH
 #PowerShell 7.1 is installed to $env:ProgramFiles\PowerShell\7
 #The $env:ProgramFiles\PowerShell\7 folder is added to $env:PATH
 #The $env:ProgramFiles\PowerShell\6 folder is deleted
+
+# download
+https://github.com/PowerShell/PowerShell/releases
+# 95MB 7.1 msi package
+https://github.com/PowerShell/PowerShell/releases/download/v7.1.0/PowerShell-7.1.0-win-x64.msi
+#install
 msiexec.exe /package PowerShell-7.1.0-win-x64.msi /quiet ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL=1 ENABLE_PSREMOTING=1 REGISTER_MANIFEST=1
 
 #download visualstudio instead of ise
 # download and install
 explorer.exe "https://code.visualstudio.com/"
 #Configure the PowerShell extension and update to the latest PowerShell Version
+#extention for press Ctrl+P and type:
+# ext install PowerShell
+# ext install regionfolder
 
-# configureYou can change it in Tools > Options > Environment > Fonts and Colors > Collapsible Region.
+# configure You can change it in Tools > Options > Environment > Fonts and Colors > Collapsible Region.
 # after installation start VisualStudio
 code  
 
@@ -90,20 +99,22 @@ code
 
 #region figure out the ReST api call you need for that job
 # jump onto Postman
+# download the Postman collections from
+explorer.exe https://github.com/juergenschubert/DELLEMC-DPS-ReST-api
+#change the environment var for the appropriate ddve
+#figure out that the fqdn is working and can be resolved
+Test-connection ddve-01.demo.local
+[System.Net.Dns]::GetHostAddresses(“ddve-01.demo.local“)
+$RestUrl=“ddve-01.demo.local“
 
 # Login and get the AuthToken
 #$response = Invoke-RestMethod '//https://ddve-02.vlab.local:3009/rest/v1.0/auth' -Method 'POST' -Headers $headers -Body $body
 
-# Create a DD User
-# $response = Invoke-RestMethod 'https://ddve-02.vlab.local:3009/rest/v1.0/dd-systems/0/users' -Method 'POST' -Headers $headers -Body $body
-
-# assign a user to a boost user
-#$response = Invoke-RestMethod 'https://ddve-02.vlab.local:3009/rest/v1.0/dd-systems/0/protocols/ddboost/users' -Method 'PUT' -Headers $headers -Body $body
+# get a list of all DD local user
+# $response = Invoke-RestMethod 'https://ddve-01.demo.local:3009/rest/v1.0/dd-systems/0/users' -Method 'GET' -Headers $headers -Body $body
 #endregion
  
-#figure out that the fqdn is working and can be resolved
-[System.Net.Dns]::GetHostAddresses(“ddve-2.vlab.local“)
-$RestUrl=“ddve-1.vlab.local“
+
 # get familar with that syntax
 get-help Invoke-RestMethod -ShowWindow
 
@@ -112,12 +123,15 @@ do
 {
     Write-Host "[TESTING]: HTTPS connectivity to DDVE { $($RestUrl):443 }" -ForegroundColor Green
 
-    $HTTPS = Test-Connection -TargetName "$($RestUrl)" -TcpPort 22
+    $HTTPS = Test-Connection -TargetName "$($RestUrl)" -TcpPort 443
             
     if($HTTPS  -eq $false) {
         Write-Host "[SLEEPING]: 1 Minute. Will try again"
         Get-ElapsedTime -Minutes 1
     }
+    else {
+        Write-Host "[JSWOHL]: destination reachable"
+    } 
 }
 #endregion
 
@@ -139,7 +153,7 @@ do
                     -ResponseHeadersVariable Headers
         $Con
         $mytoken = @{
-                'X-DD-AUTH-TOKEN$'=$Headers['X-DD-AUTH-TOKEN'][0]
+                'X-DD-AUTH-TOKEN'=$Headers['X-DD-AUTH-TOKEN'][0]
         }
 #endregion
 
@@ -164,6 +178,19 @@ For ($i=0; $i -le $response.User.count; $i++) {
 #################
 # from code to function
 #################
+
+
+######
+$headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+$headers.Add("Content-Type", "application/json")
+
+$body = "{`n    `"username`": `"sysadmin`",`n    `"password`": `"Password123!`"`n}"
+
+$response = Invoke-RestMethod 'https://ddve-01.demo.local:3009/rest/v1.0/auth' -Method 'POST' -Headers $headers -Body $body -SkipCertificateCheck
+$response | ConvertTo-Json
+####
+
+
 
 #region function  - let's create functions with variables
 
@@ -202,12 +229,19 @@ function Connect-DD-JS {
         #LOGIN TO DD REST API
         Write-Verbose "[DD] Login to get the access token"
 
+        $body = "{`n    `"username`": `"sysadmin`",`n    `"password`": `"Password123!`"`n}"
+
         $response = Invoke-RestMethod -uri "https://$($DDfqdn):3009/api/v1.0/auth" `
             -Method 'POST' `
             -ContentType 'application/json' `
-            -Body (ConvertTo-Json $auth) `
+            -Body $body `
             -SkipCertificateCheck `
             -ResponseHeadersVariable Headers
+
+            Write-Verbose "[DEBUG] response body"
+            Write-Verbose $response | ConvertTo-Json
+            Write-Verbose "[DEBUG] response Header"
+            Write-Verbose $Headers
 
         $DDAutoTokenValue = $Headers['X-DD-AUTH-TOKEN'][0]
         $mytoken = @{
@@ -219,10 +253,7 @@ function Connect-DD-JS {
         Write-Verbose "$Headers['X-DD-AUTH-TOKEN']"
         Write-Verbose "[DEBUG] token"
         Write-Verbose $mytoken
-        Write-Verbose "[DEBUG] response body"
-        Write-Verbose $response | ConvertTo-Json
-        Write-Verbose "[DEBUG] response Header"
-        Write-Verbose $Headers
+
         $global:DDAuthToken = $mytoken
         return $DDAutoTokenValue
 
@@ -234,11 +265,11 @@ function Connect-DD-JS {
 #region Check your Connect-DD-JS function
 Dir function:Connect-DD-JS
 
-Connect-DD-JS -DDfqdn "ddve-1.vlab.local" -DDUserName "sysadmin" -DDPassword "changeme"
-$DDtoken = Connect-DD-JS -DDfqdn "ddve-1.vlab.local" -DDUserName "sysadmin" -DDPassword "changeme"
+Connect-DD-JS -DDfqdn "ddve-01.demo.local" -DDUserName "sysadmin" -DDPassword "Password123!"
+$DDtoken = Connect-DD-JS -DDfqdn "ddve-01.demo.local" -DDUserName "sysadmin" -DDPassword "Password123!"
 
 
-Connect-DD-JS -DDfqdn "ddve-1.vlab.local" -DDUserName "sysadmin" -DDPassword "changeme" -verbose
+Connect-DD-JS -DDfqdn "ddve-01.demo.local" -DDUserName "sysadmin" -DDPassword "changeme" -verbose
 
 #endregion
 #endregion
