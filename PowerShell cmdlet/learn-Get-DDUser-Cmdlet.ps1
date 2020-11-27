@@ -1,5 +1,9 @@
 ﻿
 #thans to Mike F. Robins  mikefrobbins.com  on twitter @mikefrobbins for the template and some stolen code :-)
+#The whole code can be found on my GizHub Repos
+www.github.com/juergenschubert
+#details @
+https://raw.githubusercontent.com/juergenschubert/DER-Video-Podcast-DPS/master/PowerShell%20cmdlet/learn-Get-DDUser-Cmdlet.ps1
 
 #CTRL-M will toggle the wohle region
 
