@@ -9,4 +9,8 @@ UseCase: need more than one ova deployment -> idea automate it with PowerShell
 
 
 ## Tanzu installing a 2 Node Cluster
-UseCase: How to deploy a 2 Node K8s Cluster with FCD and Tanzu
+UseCase: How to deploy a 2 Node K8s Cluster with FCD and Tanzu  
+
+
+## learn PowerShell cmdlet  
+UseCase: get basic knowhow on how to create your own cmdlet from a ReST call  
