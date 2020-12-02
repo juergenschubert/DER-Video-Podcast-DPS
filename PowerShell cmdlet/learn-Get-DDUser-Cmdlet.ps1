@@ -1,7 +1,7 @@
 # U S E  C A S E
 # customer asked to find out all local user on his DataDomain. 700 DD spread all over the world
 #
-# let's create an PowerShell cmdlet for this
+# let's create a PowerShell cmdlet for this - let's do it
 
 
 #This doc: https://github.com/juergenschubert/DER-Video-Podcast-DPS/edit/master/PowerShell%20cmdlet/learn-Get-DDUser-Cmdlet.ps1
