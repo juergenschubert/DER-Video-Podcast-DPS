@@ -1,12 +1,15 @@
 # DER-Video-Podcast-DPS   
-cmdlet developemen
+cmdlet developement
 
-Hier findest du eine kleine Anleitung wie du dein cmdlet bauen kannst.  
-Als 1. Beispiel schauen wir uns an was es zu tun gibt um von der DataDomain eine Liste der existierenden lokalen User zu bekommen.
+Here you find the answer to my customers question
+I need to check my DataDomain local users - I have 700 DDs all over the world
 
-Du kannst dir vorstellen dass mit dieser Liste evtl nachfolgende Aktionen geschehen können wie:  
+Answer of the SE ... no problem I build a cmdlet for you to do this.
 
-* Passwört Änderung eines User  
-* Anlegen eines neuen User  
-* Anlegen einen Boost User  
-uvm.  
+Herre you do find a way how you can create your own cmdlet and NO I am not a sw developer !
+The ps1 script contains actions you have to execute and comments you should read. 
+After this exercise you should have a cmdlet which does
+connect to your DataDomain
+lookup local DD USER
+
+and might throw errors 
