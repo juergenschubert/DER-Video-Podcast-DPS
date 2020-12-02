@@ -13,3 +13,7 @@ connect to your DataDomain
 lookup local DD USER
 
 and might throw errors 
+
+Start downloading the ps1 and start reading and you will see some downloads and installs are needed but a connection to a DD with DDOS 7.2 at least as well.  
+You can run this in our DELL DemoCenter when you provision HOL-0411-01 at least with the Nov 2020 version of it.  
+Otherwise look for a DD min DDOS 7.2 with internet access. You should find many of these HOLs.  
