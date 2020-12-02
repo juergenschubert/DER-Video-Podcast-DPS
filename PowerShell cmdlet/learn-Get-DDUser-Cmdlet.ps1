@@ -1,3 +1,9 @@
+# U S E  C A S E
+# customer asked to find out all local user on his DataDomain. 700 DD spread all over the world
+#
+# let's create an PowerShell cmdlet for this
+
+
 #This doc: https://github.com/juergenschubert/DER-Video-Podcast-DPS/edit/master/PowerShell%20cmdlet/learn-Get-DDUser-Cmdlet.ps1
 ## Download Postman
 # https://www.postman.com/downloads/
