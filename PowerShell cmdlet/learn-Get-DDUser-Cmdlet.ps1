@@ -1,4 +1,9 @@
-﻿
+#This doc: https://github.com/juergenschubert/DER-Video-Podcast-DPS/edit/master/PowerShell%20cmdlet/learn-Get-DDUser-Cmdlet.ps1
+## Download Postman
+# https://www.postman.com/downloads/
+## Download VisuaBasic Code
+# https://code.visualstudio.com/download
+
 #region where you get the content
 #thanks to Mike F. Robins  mikefrobbins.com  on twitter @mikefrobbins for the template and some stolen code :-)
 #The whole code can be found on my GizHub Repos
