@@ -5,7 +5,7 @@
 
 #region where you get the content
 #thanks to Mike F. Robins  mikefrobbins.com  on twitter @mikefrobbins for the template and some stolen code :-)
-#The whole code can be found on my GizHub Repos
+#The whole code can be found on my GitHub Repos
 www.github.com/juergenschubert
 #details @
 https://raw.githubusercontent.com/juergenschubert/DER-Video-Podcast-DPS/master/PowerShell%20cmdlet/learn-Get-DDUser-Cmdlet.ps1
@@ -92,15 +92,15 @@ Start-Process -FilePath "${env:ProgramFiles(x86)}\Google\Chrome\Application\chro
 explorer.exe https://github.com/juergenschubert/DELLEMC-DPS-ReST-api
 #change the environment var for the appropriate ddve
 #figure out that the fqdn is working and can be resolved
-Test-connection ddve-1.vlab.local
-[System.Net.Dns]::GetHostAddresses(“ddve-1.vlab.local“)
-$RestUrl=“ddve-1.vlab.local“
+Test-connection ddve-01
+[System.Net.Dns]::GetHostAddresses(“ddve-01“)
+$RestUrl=“ddve-01“
 
 # Login and get the AuthToken
-#$response = Invoke-RestMethod '//https://ddve-02.vlab.local:3009/rest/v1.0/auth' -Method 'POST' -Headers $headers -Body $body
+#$response = Invoke-RestMethod '//https://ddve-01:3009/rest/v1.0/auth' -Method 'POST' -Headers $headers -Body $body
 
 # get a list of all DD local user
-# $response = Invoke-RestMethod 'https://ddve-01.demo.local:3009/rest/v1.0/dd-systems/0/users' -Method 'GET' -Headers $headers -Body $body
+# $response = Invoke-RestMethod 'https://ddve-01:3009/rest/v1.0/dd-systems/0/users' -Method 'GET' -Headers $headers -Body $body
 #endregion
  
 
@@ -127,7 +127,7 @@ do
 
 #region PS Scriptlet
 #####
-$RestUrl = "ddve-3.vlab.local"
+$RestUrl = "ddve-01"
 #region ps1 script - Login and get the AuthToken
          $auth = @{
             username="sysadmin"
@@ -148,7 +148,7 @@ $RestUrl = "ddve-3.vlab.local"
 #endregion
 
 #region ps1 script - get DD local user on my DataDomain
-# $response = Invoke-RestMethod 'https://ddve-2.vlab.local:3009/rest/v1.0/dd-systems/0/users' -Method 'GET' -Headers $headers -Body 
+# $response = Invoke-RestMethod 'https://ddve-01:3009/rest/v1.0/dd-systems/0/users' -Method 'GET' -Headers $headers -Body 
 #body with the user you wanna create
 
 $response = Invoke-RestMethod "https://$($RestUrl):3009/rest/v1.0/dd-systems/0/users" `
@@ -221,7 +221,7 @@ function Connect-DD-JS {
         #LOGIN TO DD REST API
         Write-Verbose "[DD] Login to get the access token"
 
-        $body = "{`n    `"username`": `"sysadmin`",`n    `"password`": `"Password123!`"`n}"
+        $body = "{`n    `"username`": `"$($DDUserName)`",`n    `"password`": `"$DDPassword`"`n}"
 
         $response = Invoke-RestMethod -uri "https://$($DDfqdn):3009/api/v1.0/auth" `
             -Method 'POST' `
@@ -257,11 +257,11 @@ function Connect-DD-JS {
 #region Check your Connect-DD-JS function
 Dir function:Connect-DD-JS
 
-Connect-DD-JS -DDfqdn "ddve-3.vlab.local" -DDUserName "sysadmin" -DDPassword "Password123!"
-$DDtoken = Connect-DD-JS -DDfqdn "ddve-3.vlab.local" -DDUserName "sysadmin" -DDPassword "Password123!"
+Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "Password123!"
+$DDtoken = Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "Password123!"
 
 
-Connect-DD-JS -DDfqdn "ddve-3.vlab.local" -DDUserName "sysadmin" -DDPassword "Password123!" -verbose
+Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "Password123!" -verbose
 
 #endregion
 #endregion
@@ -314,8 +314,8 @@ function Get-DDUser-JS {
 Dir function:Get-DDUser-JS
 $DDtoken
 Get-Help Get-DDUser-JS
-Get-DDUser-JS -DDfqdn "ddve-3.vlab.local" -DDAuthTokenValue $DDtoken 
-Get-DDUser-JS -DDfqdn "ddve-3.vlab.local" -DDAuthTokenValue $DDtoken -verbose
+Get-DDUser-JS -DDfqdn "ddve-01" -DDAuthTokenValue $DDtoken 
+Get-DDUser-JS -DDfqdn "ddve-01" -DDAuthTokenValue $DDtoken -verbose
 #endregion
 
 # We've created code but nothing will show up on
@@ -379,11 +379,11 @@ function Connect-DD-JS {
     local path
 
 .EXAMPLE
-    Connect-DD-JS -DDfqdn "ddve-1.vlab.local" -DDUserName "sysadmin" -DDPassword "changeme"
+    Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "changeme"
     
-    $DDtoken = Connect-DD-JS -DDfqdn "ddve-1.vlab.local" -DDUserName "sysadmin" -DDPassword "changeme"
+    $DDtoken = Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "changeme"
     
-    Connect-DD-JS -DDfqdn "ddve-1.vlab.local" -DDUserName "sysadmin" -DDPassword "changeme" -verbose
+    Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "changeme" -verbose
 
 .INPUTS
     System.String[]
@@ -479,9 +479,9 @@ function Get-DDUser-JS {
     local path
 
 .EXAMPLE
-    Get-DDUser-JS -DDfqdn "ddve-1.vlab.local" -DDAuthTokenValue $DDtoken 
+    Get-DDUser-JS -DDfqdn "ddve-01" -DDAuthTokenValue $DDtoken 
     
-    Get-DDUser-JS -DDfqdn "ddve-1.vlab.local" -DDAuthTokenValue $DDtoken -verbose
+    Get-DDUser-JS -DDfqdn "ddve-01" -DDAuthTokenValue $DDtoken -verbose
 
 .INPUTS
     System.String[]
@@ -653,11 +653,11 @@ function Connect-DD-JS {
     local path
 
 .EXAMPLE
-    Connect-DD-JS -DDfqdn "ddve-1.vlab.local" -DDUserName "sysadmin" -DDPassword "changeme"
+    Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "changeme"
     
-    $DDtoken = Connect-DD-JS -DDfqdn "ddve-1.vlab.local" -DDUserName "sysadmin" -DDPassword "changeme"
+    $DDtoken = Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "changeme"
     
-    Connect-DD-JS -DDfqdn "ddve-1.vlab.local" -DDUserName "sysadmin" -DDPassword "changeme" -verbose
+    Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "changeme" -verbose
 
 .INPUTS
     System.String[]
@@ -745,9 +745,9 @@ function Get-DDUser-JS {
     local path
 
 .EXAMPLE
-    Get-DDUser-JS -DDfqdn "ddve-1.vlab.local" -DDAuthTokenValue $DDtoken 
+    Get-DDUser-JS -DDfqdn "ddve-01" -DDAuthTokenValue $DDtoken 
     
-    Get-DDUser-JS -DDfqdn "ddve-1.vlab.local" -DDAuthTokenValue $DDtoken -verbose
+    Get-DDUser-JS -DDfqdn "ddve-01" -DDAuthTokenValue $DDtoken -verbose
 
 .INPUTS
     System.String[]
@@ -833,12 +833,12 @@ Get-Module -Name boblab
 
 Dir function:Connect-DD-JS
 
-$DDtoken = Connect-DD-JS -DDfqdn "ddve-3.vlab.local" -DDUserName "sysadmin" -DDPassword "Password123!"
+$DDtoken = Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "Password123!"
 
 Dir function:Get-DDUser-JS
 $DDtoken
 Get-Help Get-DDUser-JS
-Get-DDUser-JS -DDfqdn "ddve-3.vlab.local" -DDAuthTokenValue $DDtoken 
+Get-DDUser-JS -DDfqdn "ddve-01" -DDAuthTokenValue $DDtoken 
 #endregion
 
 
