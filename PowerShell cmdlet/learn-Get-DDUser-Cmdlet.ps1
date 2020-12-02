@@ -615,9 +615,11 @@ New-Item -Path $env:ProgramFiles\WindowsPowerShell -Name Modules -ItemType Direc
 
 #Move our newly created module to a location MyModule that exist in $env:PSModulePath
 Move-Item -Path $Path\MyModule -Destination $env:ProgramFiles\WindowsPowerShell\Modules
-
+#let's see if it is there
+explorer.exe $env:ProgramFiles\WindowsPowerShell\Modules\MyModule
 #Try to call one of the functions
 Get-JSComputerName
+Get-Command -Module MyModule
 
 #endregion
 
@@ -631,9 +633,179 @@ New-Item -Path $Path -Name boblab -ItemType Directory
 #Create the script module (PSM1 file) using the Out-File cmdlet
 Out-File -FilePath $Path\boblab\boblab.psm1
 
-#let's now start the new new module in a new editor window
-code $Path\boblab\boblab.psm1
+#region code snipeit to create content for boblab.psm1
+Set-Content -Path "$Path\boblab\boblab.psm1" -Value @'
+function Connect-DD-JS {
+<#
+.SYNOPSIS
+    Connect to a DataDomain you specify and returns the authtoken for further login
+    
+.DESCRIPTION
+    Connect-DD-JS is a function which logs into a DataDomain with sysadmin and password 
+    and returns the authtoken which can be used for other ReST api call.
+ 
+.PARAMETER Name
+    DDfqdn  DataDomain FQDN
+    DDUserName    User Name for DD
+    DDPassword    Password for this user
+ 
+.PARAMETER Path
+    local path
 
+.EXAMPLE
+    Connect-DD-JS -DDfqdn "ddve-1.vlab.local" -DDUserName "sysadmin" -DDPassword "changeme"
+    
+    $DDtoken = Connect-DD-JS -DDfqdn "ddve-1.vlab.local" -DDUserName "sysadmin" -DDPassword "changeme"
+    
+    Connect-DD-JS -DDfqdn "ddve-1.vlab.local" -DDUserName "sysadmin" -DDPassword "changeme" -verbose
+
+.INPUTS
+    System.String[]
+ 
+.OUTPUTS
+    DataDomain Auth Token
+ 
+.NOTES
+    Author:  Juergen Schubert
+    Website: http://juergenschubert.com
+    Twitter: @NextGenBackup
+#>
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)]
+        [string]$DDfqdn,
+        [Parameter(Mandatory)]
+        [string]$DDUserName,
+        [Parameter(Mandatory)]
+        [string]$DDPassword
+    )
+    
+    begin {
+
+    } #END BEGIN
+
+    process {
+
+        $auth = @{
+            username="$($DDUserName)"
+            password="$($DDPassword)"
+        }
+    
+
+        Write-Verbose "[DD] Username: $DDUserName"
+        Write-Verbose "[DD] Password: $DDPassword"
+
+        Write-Verbose "[DD] Login to get the access token" -InformationAction Continue
+        [System.Net.ServicePointManager]::SecurityProtocol =[System.Net.SecurityProtocolType]::Tls12
+        Write-Verbose "[DD] FQDN $DDfqdn"
+        #LOGIN TO DD REST API
+        Write-Verbose "[DD] Login to get the access token"
+
+        $response = Invoke-RestMethod -uri "https://$($DDfqdn):3009/api/v1.0/auth" `
+            -Method 'POST' `
+            -ContentType 'application/json' `
+            -Body (ConvertTo-Json $auth) `
+            -SkipCertificateCheck `
+            -ResponseHeadersVariable Headers
+
+        $DDAutoTokenValue = $Headers['X-DD-AUTH-TOKEN'][0]
+        $mytoken = @{
+            'X-DD-AUTH-TOKEN'=$Headers['X-DD-AUTH-TOKEN'][0]
+        }
+        
+
+        Write-Verbose "[DEBUG] X-DD-Auth-Token"
+        Write-Verbose "$Headers['X-DD-AUTH-TOKEN']"
+        Write-Verbose "[DEBUG] token"
+        Write-Verbose $mytoken
+        Write-Verbose "[DEBUG] response body"
+        Write-Verbose $response | ConvertTo-Json
+        Write-Verbose "[DEBUG] response Header"
+        Write-Verbose $Headers
+        $global:DDAuthToken = $mytoken
+        return $DDAutoTokenValue
+
+    } # END Process
+} #END Function
+
+function Get-DDUser-JS {
+<#
+.SYNOPSIS
+    Connect to a DataDomain you specify and returns the local User
+
+.DESCRIPTION
+    Get-DDUser-JS is a function which logs into a DataDomain with the provided authtoken 
+    you shoudw received from Connect-DD-JS and returns a list of local DD user.
+ 
+.PARAMETER Name
+    DDfqdn  DataDomain FQDN
+    DDtoken AuthToken for login to the DD
+ 
+.PARAMETER Path
+    local path
+
+.EXAMPLE
+    Get-DDUser-JS -DDfqdn "ddve-1.vlab.local" -DDAuthTokenValue $DDtoken 
+    
+    Get-DDUser-JS -DDfqdn "ddve-1.vlab.local" -DDAuthTokenValue $DDtoken -verbose
+
+.INPUTS
+    System.String[]
+ 
+.OUTPUTS
+    returns the local user name on the DataDomain System
+ 
+.NOTES
+    Author:  Juergen Schubert
+    Website: http://juergenschubert.com
+    Twitter: @NextGenBackup
+#>
+    [CmdletBinding()]
+        param (
+            [Parameter(Mandatory)]
+            [string]$DDfqdn,
+            [Parameter(Mandatory)]
+            [string]$DDAuthTokenValue
+     )
+     
+     begin {
+ 
+     } #END BEGIN
+ 
+     process {
+         $RestUrl = $DDfqdn
+         Write-Verbose "[DEBUG] token"
+         Write-Verbose $DDAuthTokenValue
+         Write-Verbose "[Debug] FQDN of the DD"
+         Write-Verbose "$DDfqdn"
+ 
+         $authtoken = @{
+             'X-DD-AUTH-TOKEN'= $DDAuthTokenValue
+         }
+         $response1 = Invoke-RestMethod "https://$($RestUrl):3009/rest/v1.0/dd-systems/0/users" `
+             -Method 'Get'  `
+             -ContentType 'application/json' ` `
+             -Headers $authtoken `
+             -SkipCertificateCheck  `
+             -ResponseHeadersVariable Headers1
+ 
+         For ($i=0; $i -le $response1.User.count; $i++) {
+               write-host $response1.User[$i].name
+         }
+         
+         Write-Verbose "[DEBUG] Response User Count: $response1.User.count "
+         Write-Verbose "[DEBUG] response body"
+         Write-Verbose $response1
+         Write-Verbose "[DEBUG] response Header"
+         Write-Verbose $Headers1
+     } #End Process
+ } #End Function
+
+'@
+#endregion
+
+#Or the other approach - let's now start the new new module in a new editor window
+code $Path\boblab\boblab.psm1
 #Copy and paste both created function into the new file
 #save it
 
@@ -656,17 +828,26 @@ Get-Module -Name boblab
 
 #Show the count of the commands that are part of MyModule
 (Get-Command -Module boblab).count
+
+# show some examples
+
+Dir function:Connect-DD-JS
+
+$DDtoken = Connect-DD-JS -DDfqdn "ddve-3.vlab.local" -DDUserName "sysadmin" -DDPassword "Password123!"
+
+Dir function:Get-DDUser-JS
+$DDtoken
+Get-Help Get-DDUser-JS
+Get-DDUser-JS -DDfqdn "ddve-3.vlab.local" -DDAuthTokenValue $DDtoken 
 #endregion
 
 
-#################
 # We've created code, build a function which is cmdlet like but NO error handling
 #################
+#region add errorhandling
+#endregion
 
-
-get-command Connect-DD-JS
 #region get the get-command show no version fix this
-
 #endregion
 
 
