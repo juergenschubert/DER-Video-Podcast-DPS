@@ -3,13 +3,6 @@
 #
 # let's create a PowerShell cmdlet for this - let's do it
 
-
-#This doc: https://github.com/juergenschubert/DER-Video-Podcast-DPS/edit/master/PowerShell%20cmdlet/learn-Get-DDUser-Cmdlet.ps1
-## Download Postman
-# https://www.postman.com/downloads/
-## Download VisuaBasic Code
-# https://code.visualstudio.com/download
-
 #region where you get the content
 #thanks to Mike F. Robins  mikefrobbins.com  on twitter @mikefrobbins for the template and some stolen code :-)
 #The whole code can be found on my GizHub Repos
@@ -53,25 +46,23 @@ $PROFILE
 
 
 # install applets needed for the scripts
-# This will download the latest version of c and install it in the user’s profile
-iex (New-Object Net.WebClient).DownloadString("https://gist.github.com/darkoperator/6152630/raw/c67de4f7cd780ba367cccbc2593f38d18ce6df89/instposhsshdev")
-Install-Module -Name Posh-SSH
-
-#download PowerShell 7 to be used
+## Download Postman
+explorer.exe https://www.postman.com/downloads/
+## Download VisuaBasic Code
+explorer.exe https://code.visualstudio.com/download
+# download PowerShell latest (7.1)
+explorer.exe https://github.com/PowerShell/PowerShell/releases
+# 95MB 7.1 msi package
+explorer.exe https://github.com/PowerShell/PowerShell/releases/download/v7.1.0/PowerShell-7.1.0-win-x64.msi
+#install
+msiexec.exe /package PowerShell-7.1.0-win-x64.msi /quiet ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL=1 ENABLE_PSREMOTING=1 REGISTER_MANIFEST=1
+#PowerShell 7 to be used
 #PowerShell 7.1 is installed to $env:ProgramFiles\PowerShell\7
 #The $env:ProgramFiles\PowerShell\7 folder is added to $env:PATH
 #The $env:ProgramFiles\PowerShell\6 folder is deleted
 
-# download
-https://github.com/PowerShell/PowerShell/releases
-# 95MB 7.1 msi package
-https://github.com/PowerShell/PowerShell/releases/download/v7.1.0/PowerShell-7.1.0-win-x64.msi
-#install
-msiexec.exe /package PowerShell-7.1.0-win-x64.msi /quiet ADD_EXPLORER_CONTEXT_MENU_OPENPOWERSHELL=1 ENABLE_PSREMOTING=1 REGISTER_MANIFEST=1
-
-#download visualstudio instead of ise
-# download and install
-explorer.exe "https://code.visualstudio.com/"
+### Start installation of
+# Postman and Visual Studion Code
 # Configure the PowerShell extension and update to the latest PowerShell Version
 # extention for press Ctrl+P and type:
 # ext install PowerShell
@@ -79,6 +70,9 @@ explorer.exe "https://code.visualstudio.com/"
 
 # after configuration restart VisualStudio
 code  
+# now let's import what you need in Postman.
+# Clone the restapi repository to your local computer
+explorer.exe https://github.com/juergenschubert/DELLEMC-DPS-ReST-api
 
 # close and open Visual Studio Code to make that happening
 #endregion
