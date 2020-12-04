@@ -516,7 +516,7 @@ Get-Help Get-DDUser-JS -Full
 # let's create the boblab cmdlet
 #################
 
-#region create the boblab cmdlet both function
+#region create the boblab cmdlet with both and more function
 function Connect-DD-JS {
     <#
 .SYNOPSIS
@@ -694,20 +694,46 @@ Out-File -FilePath $Path\boblab\boblab.psm1
 #let's now start the new new module in a new editor window
 code $Path\boblab\boblab.psm1
 
-#Move our newly created module to a location MyModule that exist in $env:PSModulePath
-Move-Item -Path $Path\MyModule -Destination $env:ProgramFiles\WindowsPowerShell\Modules
+#region advanced move to a location and autoload
+
+#If the PSModuleAutoLoadingPreference has been changed from the default, it can impact module autoloading.
+$PSModuleAutoloadingPreference
+
+#show the helpfile in a external window
+help about_Preference_Variables -showwindow
+
+#enable autoload of all modules in the module path 
+$PSModuleAutoLoadingPreference = 'All'
+
+# check the module path again
+$env:PSModulePath
+
+#Move our newly created module to a location boblab that exist in $env:PSModulePath
+Move-Item -Path $Path\boblab -Destination $env:ProgramFiles\WindowsPowerShell\Modules
 #let's see if it is there
 explorer.exe $env:ProgramFiles\WindowsPowerShell\Modules\MyModule
 #Try to call one of the functions
 Get-JSComputerName
 Get-Command -Module MyModule
+#endregion
+#manual import and overwrite an existing module
+import-module $Path\boblab\boblab.psm1 -Force -Verbose
 
+#region import the module from github into your env
+# githubcmdlet var for source of the cmdlet
+$githubcmdletpath ="C:\Users\Administrator\Documents\GitHub\DELLEMC-DPS-PowerShell\cmdlet"
+import-module $githubcmdletpat\boblab\boblab.psm1 -Force -Verbose
+# You can copy the psm1 into a working directory 
+Copy-Item -Path $githubcmdletpath\boblab\boblab.psm1 $Path\boblab\boblab.psm1 -Force
+import-module $Path\boblab\boblab.psm1 -Force -Verbose
 #endregion
 
 
 # We've created code, build a function which is cmdlet like but NO error handling
 #################
+#region error handling in function
 
+#endregion
 
 get-command Connect-DD-JS
 #region get the get-command show no version fix this
