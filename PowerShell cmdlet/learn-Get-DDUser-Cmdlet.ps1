@@ -104,9 +104,6 @@ explorer.exe https://developer.dellemc.com/data-protection/powerprotect/data-dom
 # $response = Invoke-RestMethod 'https://ddve-01:3009/rest/v1.0/dd-systems/0/users' -Method 'GET' -Headers $headers -Body $body
 #endregion
 
-#figure out that the fqdn is working and can be resolved
-[System.Net.Dns]::GetHostAddresses(“ddve-2.vlab.local“)
-$RestUrl = “ddve-1.vlab.local“
 # get familar with that syntax
 get-help Invoke-RestMethod -ShowWindow
 
@@ -696,13 +693,13 @@ function Get-DDUser-JS {
 # OKAY now let's go with our code
 
 #Create a directory bob for the script module in our devpath
-New-Item -Path $Path -Name boblab -ItemType Directory
+New-Item -Path $Path -Name boblabdd -ItemType Directory
 
 #Create the script module (PSM1 file) using the Out-File cmdlet
-Out-File -FilePath $Path\boblab\boblab.psm1
+Out-File -FilePath $Path\boblabdd\boblabdd.psm1
 
 #let's now start the new new module in a new editor window
-code $Path\boblab\boblab.psm1
+code $Path\boblabdd\boblabdd.psm1
 
 #region advanced move to a location and autoload
 
@@ -718,23 +715,24 @@ $PSModuleAutoLoadingPreference = 'All'
 # check the module path again
 $env:PSModulePath
 
+explorer.exe  $Path\boblabdd
 #Move our newly created module to a location boblab that exist in $env:PSModulePath
-Move-Item -Path $Path\boblab -Destination $env:ProgramFiles\WindowsPowerShell\Modules
+Move-Item -Path $Path\boblabdd -Destination $env:ProgramFiles\WindowsPowerShell\Modules
 #let's see if it is there
 explorer.exe $env:ProgramFiles\WindowsPowerShell\Modules\MyModule
 #Try to call one of the functions
-Get-JSComputerName
-Get-Command -Module MyModule
+Connect-DD-JS
+Get-Command -Module boblabdd
 #endregion
-#manual import and overwrite an existing module
-import-module $Path\boblab\boblab.psm1 -Force -Verbose
+
 
 #region import the module from github into your env
 # githubcmdlet var for source of the cmdlet
-$githubcmdletpath ="C:\Users\Administrator\Documents\GitHub\DELLEMC-DPS-PowerShell\cmdlet"
+$githubcmdletpath ="C:\Users\Administrator\Documents\GitHub\DER-Video-Podcast-DPS\PowerShell cmdlet"
 import-module $githubcmdletpat\boblab\boblab.psm1 -Force -Verbose
 # You can copy the psm1 into a working directory 
-Copy-Item -Path $githubcmdletpath\boblab\boblab.psm1 $Path\boblab\boblab.psm1 -Force
+mkdir boblabdd
+Copy-Item -Path $githubcmdletpath\boblabdd.psm1 $Path\boblabdd\boblabdd.psm1 -Force
 import-module $Path\boblab\boblab.psm1 -Force -Verbose
 #endregion
 
