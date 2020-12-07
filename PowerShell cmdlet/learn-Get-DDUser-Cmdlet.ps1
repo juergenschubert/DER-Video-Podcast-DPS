@@ -692,14 +692,39 @@ function Get-DDUser-JS {
 #################
 ## please also enable piplie with parameter(ValueFromPipeline)
 
-function Connect-DD-JS {
-    <#
-.SYNOPSIS
-    Connect to a DataDomain you specify and returns the authtoken for further login
+#region advanced move to a location and autoload
 
-.DESCRIPTION
-    Connect-DD-JS is a function which logs into a DataDomain with sysadmin and password
-    and returns the authtoken which can be used for other ReST api call.
+#If the PSModuleAutoLoadingPreference has been changed from the default, it can impact module autoloading.
+$PSModuleAutoloadingPreference
+
+#show the helpfile in a external window
+help about_Preference_Variables -showwindow
+
+#enable autoload of all modules in the module path
+$PSModuleAutoLoadingPreference = 'All'
+
+# check the module path again
+$env:PSModulePath
+
+#Move our newly created module to a location boblab that exist in $env:PSModulePath
+Move-Item -Path $Path\boblab -Destination $env:ProgramFiles\WindowsPowerShell\Modules
+#let's see if it is there
+explorer.exe $env:ProgramFiles\WindowsPowerShell\Modules\MyModule
+#Try to call one of the functions
+Get-JSComputerName
+Get-Command -Module MyModule
+#endregion
+#manual import and overwrite an existing module
+import-module $Path\boblab\boblab.psm1 -Force -Verbose
+
+#region import the module from github into your env
+# githubcmdlet var for source of the cmdlet
+$githubcmdletpath ="C:\Users\Administrator\Documents\GitHub\DELLEMC-DPS-PowerShell\cmdlet"
+import-module $githubcmdletpat\boblab\boblab.psm1 -Force -Verbose
+# You can copy the psm1 into a working directory
+Copy-Item -Path $githubcmdletpath\boblab\boblab.psm1 $Path\boblab\boblab.psm1 -Force
+import-module $Path\boblab\boblab.psm1 -Force -Verbose
+#endregion
 
 .PARAMETER Name
     DDfqdn        DataDomain FQDN
@@ -735,9 +760,9 @@ function Connect-DD-JS {
             {
                 $true
             } else {
-                throw "$_ is invalid. the FQDN cannot be resolved. Please correct."   
+                throw "$_ is invalid. the FQDN cannot be resolved. Please correct."
             }
-            }) 
+            })
         ]
         [string]$DDfqdn,
         [Parameter(Mandatory)]
@@ -801,29 +826,29 @@ function Get-DDUser-JS {
     <#
     .SYNOPSIS
         Connect to a DataDomain you specify and returns the local User
-    
+
     .DESCRIPTION
-        Get-DDUser-JS is a function which logs into a DataDomain with the provided authtoken 
+        Get-DDUser-JS is a function which logs into a DataDomain with the provided authtoken
         you shoudw received from Connect-DD-JS and returns a list of local DD user.
-     
+
     .PARAMETER Name
         DDfqdn  DataDomain FQDN
         DDtoken AuthToken for login to the DD
-     
+
     .PARAMETER Path
         local path
-    
+
     .EXAMPLE
-        Get-DDUser-JS -DDfqdn "ddve-1.vlab.local" -DDAuthTokenValue $DDtoken 
-        
+        Get-DDUser-JS -DDfqdn "ddve-1.vlab.local" -DDAuthTokenValue $DDtoken
+
         Get-DDUser-JS -DDfqdn "ddve-1.vlab.local" -DDAuthTokenValue $DDtoken -verbose
-    
+
     .INPUTS
         System.String[]
-     
+
     .OUTPUTS
         returns the local user name on the DataDomain System
-     
+
     .NOTES
         Author:  Juergen Schubert
         Website: http://juergenschubert.com
@@ -837,9 +862,9 @@ function Get-DDUser-JS {
                     {
                         $true
                     } else {
-                        throw "$_ is invalid. the FQDN cannot be resolved. Please correct."   
+                        throw "$_ is invalid. the FQDN cannot be resolved. Please correct."
                     }
-                    }) 
+                    })
                 ]
                 [string]$DDfqdn,
                 [Parameter(Mandatory)]
@@ -848,24 +873,24 @@ function Get-DDUser-JS {
                     {
                         $true
                     } else {
-                        throw "$_ is invalid Authcode. Please provide a valid authcode for DataDoman"   
+                        throw "$_ is invalid Authcode. Please provide a valid authcode for DataDoman"
                     }
-                    }) 
+                    })
                 ]
                 [string]$DDAuthTokenValue
          )
-         
+
          begin {
-     
+
          } #END BEGIN
-     
+
          process {
              $RestUrl = $DDfqdn
              Write-Verbose "[DEBUG] token"
              Write-Verbose $DDAuthTokenValue
              Write-Verbose "[Debug] FQDN of the DD"
              Write-Verbose "$DDfqdn"
-     
+
              $authtoken = @{
                  'X-DD-AUTH-TOKEN'= $DDAuthTokenValue
              }
@@ -875,11 +900,11 @@ function Get-DDUser-JS {
                  -Headers $authtoken `
                  -SkipCertificateCheck  `
                  -ResponseHeadersVariable Headers1
-     
+
              For ($i=0; $i -le $response1.User.count; $i++) {
                    write-host $response1.User[$i].name
              }
-             
+
              Write-Verbose "[DEBUG] Response User Count: $response1.User.count "
              Write-Verbose "[DEBUG] response body"
              Write-Verbose $response1
@@ -1308,7 +1333,7 @@ Get-Content (Get-Module MicrosoftPowerShell.Utillity).Path
 #Get it int a var
 $p = (Get-Module MicrosoftPowerShell.Utillity).Path
 
-#Test.ModuleManifest $p 
+#Test.ModuleManifest $p
 Do a format list
 Test.ModuleManifest $p | Fl *
 
@@ -1327,7 +1352,7 @@ Gci (Get-Module boblabdd).ModuleBase -Filter *.psd1 | % {Test-ModuleManifest -Pa
 #All script modules should have a module manifest which is a PSD1 file and contains meta data about the module
 #New-ModuleManifest is used to create a module manifest
 #Path is the only value that's required. However, the module won't work if root module is not specified.
-#It's a good idea to specify Author and Description in case you decide to upload your module to a Nuget repository with PowerShellGet 
+#It's a good idea to specify Author and Description in case you decide to upload your module to a Nuget repository with PowerShellGet
 
 #The version of a module without a manifest is 0.0 (This is a dead givaway that the module doesn't have a manifest).
 Get-Module -Name boblabdd
