@@ -3,7 +3,7 @@
 #
 # let's create a PowerShell cmdlet for this - let's do it
 
-#region where you get the content
+#### where you get the content
 #thanks to Mike F. Robins  mikefrobbins.com  on twitter @mikefrobbins for the template and some stolen code :-)
 #The whole code can be found on my GitHub Repos
 explorer.exe https://www.github.com/juergenschubert
@@ -24,7 +24,7 @@ Get-PSVersion
 #Safety in case the entire script is run instead of a selection
 Start-Sleep -Seconds 1800
 
-#Set my working environement to C:\Demo
+# Set my working environement to C:\Demo
 $Path = 'C:\Demo'
 #Change into the C:\Demo folder
 Set-Location -Path $Path
@@ -71,7 +71,7 @@ explorer.exe https://github.com/juergenschubert/DELLEMC-DPS-ReST-api
 
 # now let's import DD 7.3 Collection and environment into Postman.
 
-#endregion
+####
 
 ##Use Case
 #DD Customer with more than 700 DDs is looking for a way to get a list of all local DD User. GUI and DD Management Center are not an option.
@@ -88,7 +88,7 @@ Test-connection ddve-01
 $RestUrl=“ddve-01“
 Test-Connection -TargetName "$($RestUrl)" -TcpPort 443
 
-#region figure out the ReST api call you need for that job
+#### figure out the ReST api call you need for that job
 # jump onto Postman
 #change the environment var for the appropriate ddve
 
@@ -108,12 +108,12 @@ explorer.exe https://developer.dellemc.com/data-protection/powerprotect/data-dom
 
 # get familar with that syntax
 get-help Invoke-RestMethod -ShowWindow
-#endregion
+####
 
-#region PowerShell Scriptlet
+#### PowerShell Scriptlet
 #####
 # $RestUrl = "ddve-01"
-#region ps1 script - Login and get the AuthToken
+#### ps1 script - Login and get the AuthToken
 $auth = @{
     username="sysadmin"
     password="Password123!"
@@ -131,9 +131,9 @@ $Con
 $mytoken = @{
     'X-DD-AUTH-TOKEN'=$Headers['X-DD-AUTH-TOKEN'][0]
 }
-#endregion
+####
 
-#region ps1 script - get DD local user on my DataDomain
+#### ps1 script - get DD local user on my DataDomain
 # $response = Invoke-RestMethod 'https://ddve-01:3009/rest/v1.0/dd-systems/0/users' -Method 'GET' -Headers $headers -Body
 # response body with the user you wanna see
 
@@ -151,18 +151,18 @@ For ($i=0; $i -le $response.User.count; $i++) {
     write-host $response.User[$i].name -ForegroundColor Green
     }
 
-#endregion
-#endregion
+####
+####
 
 
 # from code to function
 #################
 
-#region function  - let's create functions with variables
+#### function  - let's create functions with variables
 
-#region Connect-DD-JS
+#### Connect-DD-JS
 
-#region function Connect-DD-JS Login to DD
+#### function Connect-DD-JS Login to DD
 
 function Connect-DD-JS {
     [CmdletBinding()]
@@ -226,8 +226,8 @@ function Connect-DD-JS {
 } #END Function
 
 # See what we have created... so for in memory only
-#endregion
-#region Check your Connect-DD-JS function
+####
+#### Check your Connect-DD-JS function
 Dir function:Connect-DD-JS
 
 Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "Password123!"
@@ -236,11 +236,11 @@ $DDtoken = Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "P
 
 Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "Password123!" -verbose
 
-#endregion
-#endregion
+####
+####
 
 
-#region function Get-DDUser-JS get all existing DD User
+#### function Get-DDUser-JS get all existing DD User
 function Get-DDUser-JS {
     [CmdletBinding()]
     param (
@@ -288,21 +288,21 @@ $DDtoken
 
 Get-DDUser-JS -DDfqdn "ddve-01" -DDAuthTokenValue $DDtoken
 Get-DDUser-JS -DDfqdn "ddve-01" -DDAuthTokenValue $DDtoken -verbose
-#endregion
+####
 
 # We've created code but nothing will show up on
 get-help Connect-DD-JS
 get-help Get-DDUser-JS
-#endregion
-#endregion
+####
+####
 
 
 
 # enrich with some cmdlet like helpfile text
 #################
 
-#region Add some Help text into the function - still only in memory not a real cmdlet
-#region What we need to add is:
+#### Add some Help text into the function - still only in memory not a real cmdlet
+#### What we need to add is:
 <#
 .SYNOPSIS
     Creates a new PowerShell function in the specified location.
@@ -331,9 +331,9 @@ get-help Get-DDUser-JS
     Website: http://juergenschubert.com
     Twitter: @NextGenBackup
 #>
-#endregion
+####
 
-#region Connect-DD-JS
+#### Connect-DD-JS
 function Connect-DD-JS {
     <#
 .SYNOPSIS
@@ -435,9 +435,9 @@ Get-Help Connect-DD-JS
 Get-Help Connect-DD-JS -Examples
 Get-Help Connect-DD-JS -Detailed
 Get-Help Connect-DD-JS -Full
-#endregion
+####
 
-#region Get-DDUser-JS
+#### Get-DDUser-JS
 function Get-DDUser-JS {
     <#
 .SYNOPSIS
@@ -516,16 +516,16 @@ Get-Help Get-DDUser-JS
 Get-Help Get-DDUser-JS -Examples
 Get-Help Get-DDUser-JS -Detailed
 Get-Help Get-DDUser-JS -Full
-#endregion
+####
 
-#endregion
+####
 
 
 
 # let's create the boblab cmdlet
 #################
 
-#region create the boblab cmdlet with both ...also more function
+#### create the boblab cmdlet with both ...also more function
 function Connect-DD-JS {
     <#
 .SYNOPSIS
@@ -703,7 +703,7 @@ Out-File -FilePath $Path\boblabdd\boblabdd.psm1
 #let's now start the new new module in a new editor window
 code $Path\boblabdd\boblabdd.psm1
 
-#region advanced move to a location and autoload
+#### advanced move to a location and autoload
 
 #If the PSModuleAutoLoadingPreference has been changed from the default, it can impact module autoloading.
 $PSModuleAutoloadingPreference
@@ -725,10 +725,10 @@ explorer.exe $env:ProgramFiles\WindowsPowerShell\Modules\MyModule
 #Try to call one of the functions
 Connect-DD-JS
 Get-Command -Module boblabdd
-#endregion
+####
 
 
-#region import the module from github into your env
+#### import the module from github into your env
 # githubcmdlet var for source of the cmdlet
 $githubcmdletpath ="C:\Users\Administrator\Documents\GitHub\DER-Video-Podcast-DPS\PowerShell cmdlet"
 import-module $githubcmdletpat\boblabdd\boblabdd.psm1 -Force -Verbose
@@ -736,22 +736,22 @@ import-module $githubcmdletpat\boblabdd\boblabdd.psm1 -Force -Verbose
 mkdir boblabdd
 Copy-Item -Path $githubcmdletpath\boblabdd.psm1 $Path\boblabdd\boblabdd.psm1 -Force
 import-module $Path\boblab\boblab.psm1 -Force -Verbose
-#endregion
+####
 
 
 # We've created code, build a function which is cmdlet like but NO error handling
 #################
-#region error handling in function
+#### error handling in function
 
-#endregion
+####
 
 get-command Connect-DD-JS
-#region get the get-command show no version fix this
+#### get the get-command show no version fix this
 
-#endregion
+####
 
 
-#region let's create our own boblab cmdlet
+#### let's create our own boblab cmdlet
 #Create a directory bob for the script module in our devpath
 New-Item -Path $Path -Name boblab -ItemType Directory
 
@@ -944,7 +944,7 @@ Import-Module -Name boblab -Force
 #remove the module
 
 
-#endregion
+####
 
 #Show the commands that are part of boblab
 Get-Command -Module boblab
@@ -963,13 +963,13 @@ Dir function:Get-DDUser-JS
 $DDtoken
 Get-Help Get-DDUser-JS
 Get-DDUser-JS -DDfqdn "ddve-01" -DDAuthTokenValue $DDtoken
-#endregion
+####
 
 
 # We've created code, build a function which is cmdlet like but NO error handling
 #################
 
-#region add some error handling
+#### add some error handling
 function Connect-DD-JS {
     <#
     .SYNOPSIS
@@ -1141,9 +1141,7 @@ function Get-DDUser-JS {
          } #End Process
 } #End Function
 
-#endregion
-
-#region get the get-command show no version fix this
+# get the get-command show no version fix this
 Get-Module boblabdd
 (get-Module boblabdd).Path
 # will show you that path is the module psm1 itself
@@ -1169,10 +1167,10 @@ Gci (Get-Module boblabdd).ModuleBase -Filter *.psd1 | % {Test-ModuleManifest -Pa
 
 
 Gci (Get-Module boblabdd).ModuleBase -Filter *.psd1 | % {Test-ModuleManifest -Path $_.FullName} | fl *
-#endregion
+####
 
 
-#region Module Manifests
+#### Module Manifests
 
 #All script modules should have a module manifest which is a PSD1 file and contains meta data about the module
 #New-ModuleManifest is used to create a module manifest
@@ -1220,10 +1218,10 @@ Update-ModuleManifest -Path $env:ProgramFiles\WindowsPowerShell\Modules\MyModule
 
 
 New-ModuleManifest -Path $env:ProgramFiles\WindowsPowerShell\Modules\boblabdd\boblabdd.psd1 -RootModule MyModule -Author 'Juergen Schubert' -Description 'MyDDmodule' -CompanyName 'juergenschubert.com'
-#endregion
+####
 
 
-#region Cleanup
+#### Cleanup
 
 Get-Item -Path Function:\Connect-DD-JS
 Get-ChildItem -Path Function:\Connect-DD-JS
@@ -1246,4 +1244,4 @@ Get-Command -module boblabdd
 Uninstall-Module -Name boblabdd
 Remove-Item -Path $env:ProgramFiles\WindowsPowerShell\Modules\boblabdd -Recurse -Confirm:$false -ErrorAction SilentlyContinue
 Remove-Module -Name boblabdd -ErrorAction SilentlyContinue
-#endregion
+####
