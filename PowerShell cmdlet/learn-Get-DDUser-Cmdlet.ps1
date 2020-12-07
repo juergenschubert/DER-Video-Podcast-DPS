@@ -729,7 +729,7 @@ Get-Command -Module boblabdd
 #region import the module from github into your env
 # githubcmdlet var for source of the cmdlet
 $githubcmdletpath ="C:\Users\Administrator\Documents\GitHub\DER-Video-Podcast-DPS\PowerShell cmdlet"
-import-module $githubcmdletpat\boblab\boblab.psm1 -Force -Verbose
+import-module $githubcmdletpat\boblabdd\boblabdd.psm1 -Force -Verbose
 # You can copy the psm1 into a working directory 
 mkdir boblabdd
 Copy-Item -Path $githubcmdletpath\boblabdd.psm1 $Path\boblabdd\boblabdd.psm1 -Force
