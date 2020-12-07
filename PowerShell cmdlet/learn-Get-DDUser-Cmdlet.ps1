@@ -711,7 +711,7 @@ $PSModuleAutoloadingPreference
 #show the helpfile in a external window
 help about_Preference_Variables -showwindow
 
-#enable autoload of all modules in the module path 
+#enable autoload of all modules in the module path
 $PSModuleAutoLoadingPreference = 'All'
 
 # check the module path again
@@ -721,7 +721,7 @@ explorer.exe  $Path\boblabdd
 #Move our newly created module to a location boblab that exist in $env:PSModulePath
 Move-Item -Path $Path\boblabdd -Destination $env:ProgramFiles\WindowsPowerShell\Modules
 #let's see if it is there
-explorer.exe $env:ProgramFiles\WindowsPowerShell\Modules\MyModule
+explorer.exe "$env:ProgramFiles\WindowsPowerShell\Modules\boblabdd"
 #Try to call one of the functions
 Connect-DD-JS
 Get-Command -Module boblabdd
@@ -732,7 +732,7 @@ Get-Command -Module boblabdd
 # githubcmdlet var for source of the cmdlet
 $githubcmdletpath ="C:\Users\Administrator\Documents\GitHub\DER-Video-Podcast-DPS\PowerShell cmdlet"
 import-module $githubcmdletpat\boblabdd\boblabdd.psm1 -Force -Verbose
-# You can copy the psm1 into a working directory 
+# You can copy the psm1 into a working directory
 mkdir boblabdd
 Copy-Item -Path $githubcmdletpath\boblabdd.psm1 $Path\boblabdd\boblabdd.psm1 -Force
 import-module $Path\boblab\boblab.psm1 -Force -Verbose
