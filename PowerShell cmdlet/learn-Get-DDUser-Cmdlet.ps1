@@ -721,10 +721,12 @@ explorer.exe  $Path\boblabdd
 #Move our newly created module to a location boblab that exist in $env:PSModulePath
 Move-Item -Path $Path\boblabdd -Destination $env:ProgramFiles\WindowsPowerShell\Modules
 #let's see if it is there
-explorer.exe $env:ProgramFiles\WindowsPowerShell\Modules\MyModule
+explorer.exe "$env:ProgramFiles\WindowsPowerShell\Modules\boblabdd"
 #Try to call one of the functions
 Connect-DD-JS
 Get-Command -Module boblabdd
+
+import-module $env:ProgramFiles\WindowsPowerShell\Modules\boblabdd\boblabdd.psm1 -Force -Verbose
 #endregion
 
 
