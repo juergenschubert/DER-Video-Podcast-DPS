@@ -6,9 +6,9 @@
 #region where you get the content
 #thanks to Mike F. Robins  mikefrobbins.com  on twitter @mikefrobbins for the template and some stolen code :-)
 #The whole code can be found on my GitHub Repos
-www.github.com/juergenschubert
+explorer.exe https://www.github.com/juergenschubert
 #details @
-https://raw.githubusercontent.com/juergenschubert/DER-Video-Podcast-DPS/master/PowerShell%20cmdlet/learn-Get-DDUser-Cmdlet.ps1
+explorer.exe https://raw.githubusercontent.com/juergenschubert/DER-Video-Podcast-DPS/master/PowerShell%20cmdlet/learn-Get-DDUser-Cmdlet.ps1
 
 #CTRL-K+0 and CTRL K+J will toggle the regions
 
@@ -18,9 +18,9 @@ function Get-PSVersion {
 }
 Get-PSVersion
 
-PowerShell description how to design and create a DPS cmdlet
-Author:  Juergen Schubert
-#>
+#PowerShell description how to design and create a DPS cmdlet
+#Author:  Juergen Schubert
+#
 #Safety in case the entire script is run instead of a selection
 Start-Sleep -Seconds 1800
 
@@ -926,6 +926,7 @@ function Get-DDUser-JS {
      } #End Function
 '@
 
+
 #Or the other approach - let's now start the new new module in a new editor window
 code $Path\boblab\boblab.psm1
 #Copy and paste both created function into the new file
@@ -1095,7 +1096,7 @@ function Get-DDUser-JS {
         Website: http://juergenschubert.com
         Twitter: @NextGenBackup
     #>
-        [CmdletBinding()]
+    [CmdletBinding()]
             param (
                 [Parameter(Mandatory,HelpMessage='Please enter any FQDN of your DataDomain')]
                 [ValidateScript({(Test-NetConnection -ComputerName $DDfqdn -Port 443).TcpTestSucceeded})]
@@ -1138,7 +1139,7 @@ function Get-DDUser-JS {
              Write-Verbose "[DEBUG] response Header"
              Write-Verbose $Headers1
          } #End Process
-     } #End Function
+} #End Function
 
 #endregion
 
