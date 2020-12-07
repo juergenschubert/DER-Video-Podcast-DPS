@@ -719,15 +719,18 @@ $env:PSModulePath
 
 explorer.exe  $Path\boblabdd
 #Move our newly created module to a location boblab that exist in $env:PSModulePath
-Move-Item -Path $Path\boblabdd -Destination $env:ProgramFiles\WindowsPowerShell\Modules
+move-Item -Path $Path\boblabdd -Destination $env:ProgramFiles\WindowsPowerShell\Modules\boblabdd
+#copy
+Copy-Item -Path $Path\boblabdd\boblabdd.psm1 -Destination $env:ProgramFiles\WindowsPowerShell\Modules\boblabdd\boblabdd.psm1
 #let's see if it is there
 explorer.exe "$env:ProgramFiles\WindowsPowerShell\Modules\boblabdd"
 #Try to call one of the functions
 Connect-DD-JS
 #Show the commands that are part of boblab
-Get-Command -Module boblab
-Get-Module -Name boblab
-
+Get-Command -Module boblabdd
+Get-Module -Name boblabdd
+##not working
+# import-module $Path\boblabdd\boblabdd.psm1 -Force -Verbose
 #Show the count of the commands that are part of MyModule
 (Get-Command -Module boblab).count
 
@@ -750,9 +753,9 @@ Get-DDUser-JS -DDfqdn "ddve-01" -DDAuthTokenValue $DDtoken
 $githubcmdletpath ="C:\Users\Administrator\Documents\GitHub\DER-Video-Podcast-DPS\PowerShell cmdlet"
 import-module $githubcmdletpat\boblabdd\boblabdd.psm1 -Force -Verbose
 # You can copy the psm1 into a working directory
-mkdir boblabdd
+# mkdir boblabdd
 Copy-Item -Path $githubcmdletpath\boblabdd.psm1 $Path\boblabdd\boblabdd.psm1 -Force
-import-module $Path\boblab\boblab.psm1 -Force -Verbose
+import-module $Path\boblabdd\boblabdd.psm1 -Force -Verbose
 ####
 
 
@@ -914,7 +917,7 @@ function Get-DDUser-JS {
                 [string]$DDfqdn,
                 [Parameter(Mandatory)]
                 [ValidateScript({
-                    if($DDAuthTokenValue.Length -eq 33)
+                    if($DDAuthTokenValue.Length -eq 26)
                     {
                         $true
                     } else {
@@ -1351,22 +1354,22 @@ function Get-DDUser-JS {
 Get-Module boblabdd
 (get-Module boblabdd).Path
 # will show you that path is the module psm1 itself
-(Get-Module MicrosoftPowerShell.Po can werShell.Utillity).Path
+(Get-Module Microsoft.PowerShell.Utility).Path
 #Here i do see the path to psd1 to the manifest
 
 #Let‘s have a look into
-Get-Content (Get-Module MicrosoftPowerShell.Utillity).Path
+Get-Content (Get-Module Microsoft.PowerShell.Utility).Path
 
 #Get it int a var
-$p = (Get-Module MicrosoftPowerShell.Utillity).Path
+$p = (Get-Module Microsoft.PowerShell.Utility).Path
 
-#Test.ModuleManifest $p
-Do a format list
-Test.ModuleManifest $p | Fl *
+# Test ModuleManifest $p
+# Do a format list
+Test-ModuleManifest $p | Fl *
 
 #Let see the folder the module resides in
 (Get-Module boblabdd).ModuleBase
-Gci (Get-Module boblabdd).ModuleBase -Filter *.psd1
+gci (Get-Module boblabdd).ModuleBase -Filter *.psd1
 
 #% is the alias for „for-each“
 gci (Get-Module boblabdd).ModuleBase -Filter *.psd1 | % {Test-ModuleManifest -Path $_.FullName}
@@ -1387,10 +1390,10 @@ gci (Get-Module boblabdd).ModuleBase -Filter *.psd1 | % {Test-ModuleManifest -Pa
 Get-Module -Name boblabdd
 
 #Create a module manifest only specifying the required path parameter
-New-ModuleManifest -Path $env:ProgramFiles\WindowsPowerShell\Modules\boblabdd\boblabdd.psd1
+New-ModuleManifest -Path "C:\Program Files (x86)\WindowsPowerShell\Modules\boblabdd\boblabdd.psd1"
 
 #Open the module manifest
-code $env:ProgramFiles\WindowsPowerShell\Modules\Modules\boblabdd\boblabdd.psd1
+code "C:\Program Files (x86)\WindowsPowerShell\Modules\boblabdd\boblabdd.psd1"
 
 #Reimport the module
 Remove-Module -Name boblabdd
@@ -1409,7 +1412,7 @@ Get-Command -Module boblabdd
 Get-Module -Name boblabdd
 
 #Add an author and description to the manifest so the module could be uploaded to a Nuget repository with PowerShellGet
-Update-ModuleManifest -Path $env:ProgramFiles\WindowsPowerShell\Modules\boblabdd\boblabdd.psd1 -Author 'Juergen Schubert' -Description 'BobLab DD'
+Update-ModuleManifest -Path "C:\Program Files (x86)\WindowsPowerShell\Modules\boblabdd\boblabdd.psd1" -Author 'Juergen Schubert' -Description 'BobLab DD'
 
 #Check to see if any commands are exported
 Import-Module -Name boblabdd -Force
@@ -1417,13 +1420,11 @@ Get-Command -Module boblabdd
 Get-Module -Name boblabdd
 
 #Add a company name to the module manifest
-Update-ModuleManifest -Path $env:ProgramFiles\WindowsPowerShell\Modules\MyModule\MyModule.psd1 -CompanyName 'mikefrobbins.com'
-
+Update-ModuleManifest -Path "C:\Program Files (x86)\WindowsPowerShell\Modules\boblabdd\boblabdd
 #Add the RootModule information to the module manifest
-Update-ModuleManifest -Path $env:ProgramFiles\WindowsPowerShell\Modules\MyModule\MyModule.psd1 -RootModule MyModule
+Update-ModuleManifest -Path "C:\Program Files (x86)\WindowsPowerShell\Modules\boblabdd\boblabdd.psd1" -RootModule boblabdd
 
-
-New-ModuleManifest -Path $env:ProgramFiles\WindowsPowerShell\Modules\boblabdd\boblabdd.psd1 -RootModule MyModule -Author 'Juergen Schubert' -Description 'MyDDmodule' -CompanyName 'juergenschubert.com'
+New-ModuleManifest -Path "C:\Program Files (x86)\WindowsPowerShell\Modules\boblabdd\boblabdd.psd1" -RootModule MyModule -Author 'Juergen Schubert' -Description 'MyDDmodule' -CompanyName 'juergenschubert.com'
 ####
 
 
