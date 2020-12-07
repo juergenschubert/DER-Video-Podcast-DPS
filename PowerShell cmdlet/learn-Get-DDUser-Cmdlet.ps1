@@ -10,9 +10,8 @@ www.github.com/juergenschubert
 #details @
 https://raw.githubusercontent.com/juergenschubert/DER-Video-Podcast-DPS/master/PowerShell%20cmdlet/learn-Get-DDUser-Cmdlet.ps1
 
-#CTRL-M will toggle the wohle region
+#CTRL-K+0 and CTRL K+J will toggle the regions
 
-#$psISE.CurrentFile.Editor.ToggleOutliningExpansion()
 #function to check your running environment
 function Get-PSVersion {
     $PSVersionTable
@@ -80,9 +79,7 @@ explorer.exe https://github.com/juergenschubert/DELLEMC-DPS-ReST-api
 #### let's start with the prototype:
 ## Query user on my DataDomain
 
-#region figure out the ReST api call you need for that job
-# jump onto Postman
-#change the environment var for the appropriate ddve
+
 #figure out that the fqdn for a DD is working and can be resolved
 # I haved tried with DDOS 7.2 and 7.3 without problems
 Test-connection ddve-01
@@ -90,7 +87,16 @@ Test-connection ddve-01
 $RestUrl=“ddve-01“
 Test-Connection -TargetName "$($RestUrl)" -TcpPort 443
 
+#region figure out the ReST api call you need for that job
+# jump onto Postman
+#change the environment var for the appropriate ddve
+
+#now let's figure what ReST Call we do have and what to use
+explorer.exe https://developer.dellemc.com
+#for DDOS 7.3
+explorer.exe https://developer.dellemc.com/data-protection/powerprotect/data-domain/7.3/
 # Login and get the AuthToken
+explorer.exe https://developer.dellemc.com/data-protection/powerprotect/data-domain/7.3/api-reference/auth/
 #$response = Invoke-RestMethod '//https://ddve-01:3009/rest/v1.0/auth' -Method 'POST' -Headers $headers -Body $body
 
 # get a list of all DD local user
