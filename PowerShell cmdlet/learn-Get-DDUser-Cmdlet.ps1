@@ -758,7 +758,7 @@ New-Item -Path $Path -Name boblab -ItemType Directory
 #Create the script module (PSM1 file) using the Out-File cmdlet
 Out-File -FilePath $Path\boblab\boblab.psm1
 
-# code snipeit to create content for boblab.psm1
+# code snipeit to create content for boblabdd.psm1
 Set-Content -Path "$Path\boblab\boblab.psm1" -Value @'
 function Connect-DD-JS {
     <#
