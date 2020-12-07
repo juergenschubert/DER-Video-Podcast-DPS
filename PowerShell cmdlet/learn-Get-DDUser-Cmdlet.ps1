@@ -692,7 +692,7 @@ function Get-DDUser-JS {
     } #End Process
 } #End Function
 
-# OKAY now let's go with our code
+#region Automation install of cmdlets  - OKAY now let's go with our code
 
 #Create a directory bob for the script module in our devpath
 New-Item -Path $Path -Name boblabdd -ItemType Directory
@@ -713,7 +713,7 @@ help about_Preference_Variables -showwindow
 
 #enable autoload of all modules in the module path
 $PSModuleAutoLoadingPreference = 'All'
-
+$PSModuleAutoLoadingPreference = ''
 # check the module path again
 $env:PSModulePath
 
@@ -724,6 +724,9 @@ move-Item -Path $Path\boblabdd -Destination $env:ProgramFiles\WindowsPowerShell\
 Copy-Item -Path $Path\boblabdd\boblabdd.psm1 -Destination $env:ProgramFiles\WindowsPowerShell\Modules\boblabdd\boblabdd.psm1
 #let's see if it is there
 explorer.exe "$env:ProgramFiles\WindowsPowerShell\Modules\boblabdd"
+#endregion
+
+
 #Try to call one of the functions
 Connect-DD-JS
 #Show the commands that are part of boblab
@@ -732,10 +735,9 @@ Get-Module -Name boblabdd
 ##not working
 # import-module $Path\boblabdd\boblabdd.psm1 -Force -Verbose
 #Show the count of the commands that are part of MyModule
-(Get-Command -Module boblab).count
+(Get-Command -Module boblabdd).count
 
 # show some examples
-
 Dir function:Connect-DD-JS
 
 $DDtoken = Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "Password123!"
@@ -763,7 +765,7 @@ import-module $Path\boblabdd\boblabdd.psm1 -Force -Verbose
 #################
 #### error handling in function
 
-## please also enable piplie with parameter(ValueFromPipeline)
+## TBD please also enable pipline with parameter(ValueFromPipeline)
 
 function Connect-DD-JS {
     <#
@@ -917,11 +919,11 @@ function Get-DDUser-JS {
                 [string]$DDfqdn,
                 [Parameter(Mandatory)]
                 [ValidateScript({
-                    if($DDAuthTokenValue.Length -eq 26)
+                    if($DDAuthTokenValue.Length -eq 33)
                     {
                         $true
                     } else {
-                        throw "$_ is invalid Authcode. Please provide a valid authcode for DataDoman"   
+                        throw "$_ is invalid Authcode. Please provide a valid authcode for DataDomain. $($DDAuthTokenValue.Length) char is the wrong length. We need 33"   
                     }
                     }) 
                 ]
@@ -964,6 +966,16 @@ function Get-DDUser-JS {
 #### get the get-command show no version fix this
 get-command Connect-DD-JS
 ####
+Function Get-LetterCount
+
+{
+
+     Param ([string]$string)
+
+      Write-Host -ForegroundColor Cyan string length is $string.Length
+       $string | clip.exe
+} # End Function Get-LetterCount
+Get-LetterCount $DDtoken
 
 
 
@@ -1156,11 +1168,11 @@ Import-Module -Name boblabdd -Force
 ####
 
 #Show the commands that are part of boblab
-Get-Command -Module boblab
-Get-Module -Name boblab
+Get-Command -Module boblabdd
+Get-Module -Name boblabdd
 
 #Show the count of the commands that are part of MyModule
-(Get-Command -Module boblab).count
+(Get-Command -Module bobladdb).count
 
 # show some examples
 
@@ -1172,6 +1184,18 @@ Dir function:Get-DDUser-JS
 $DDtoken
 Get-Help Get-DDUser-JS
 Get-DDUser-JS -DDfqdn "ddve-01" -DDAuthTokenValue $DDtoken
+
+Function Get-LetterCount
+
+{
+
+     Param ([string]$string)
+
+      Write-Host -ForegroundColor Cyan string length is $string.Length
+       $string | clip.exe
+} # End Function Get-LetterCount
+Get-LetterCount $DDtoken
+
 ####
 
 
@@ -1352,7 +1376,7 @@ function Get-DDUser-JS {
 
 # get the get-command show no version fix this
 Get-Module boblabdd
-(get-Module boblabdd).Path
+(Get-Module boblabdd).Path
 # will show you that path is the module psm1 itself
 (Get-Module Microsoft.PowerShell.Utility).Path
 #Here i do see the path to psd1 to the manifest
