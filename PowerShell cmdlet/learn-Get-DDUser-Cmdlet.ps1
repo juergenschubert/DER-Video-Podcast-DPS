@@ -80,8 +80,9 @@ explorer.exe https://github.com/juergenschubert/DELLEMC-DPS-ReST-api
 ## Query user on my DataDomain
 
 
-#figure out that the fqdn for a DD is working and can be resolved
+# figure out that the fqdn for a DD is working and can be resolved
 # I haved tried with DDOS 7.2 and 7.3 without problems
+
 Test-connection ddve-01
 [System.Net.Dns]::GetHostAddresses(“ddve-01“)
 $RestUrl=“ddve-01“
@@ -95,6 +96,7 @@ Test-Connection -TargetName "$($RestUrl)" -TcpPort 443
 explorer.exe https://developer.dellemc.com
 #for DDOS 7.3
 explorer.exe https://developer.dellemc.com/data-protection/powerprotect/data-domain/7.3/
+
 # Login and get the AuthToken
 explorer.exe https://developer.dellemc.com/data-protection/powerprotect/data-domain/7.3/api-reference/auth/
 #$response = Invoke-RestMethod '//https://ddve-01:3009/rest/v1.0/auth' -Method 'POST' -Headers $headers -Body $body
@@ -102,11 +104,11 @@ explorer.exe https://developer.dellemc.com/data-protection/powerprotect/data-dom
 # get a list of all DD local user
 explorer.exe https://developer.dellemc.com/data-protection/powerprotect/data-domain/7.3/api-reference/users/users-1-0-resource-get
 # $response = Invoke-RestMethod 'https://ddve-01:3009/rest/v1.0/dd-systems/0/users' -Method 'GET' -Headers $headers -Body $body
-#endregion
+
 
 # get familar with that syntax
 get-help Invoke-RestMethod -ShowWindow
-
+#endregion
 
 #region PowerShell Scriptlet
 #####
@@ -749,16 +751,6 @@ get-command Connect-DD-JS
 #endregion
 
 
-
-
-##########################
-# let's create the boblab cmdlet
-#################
-#region create the boblet cmdlet
-#endregion
-
-# OKAY now let's go with our code
-
 #region let's create our own boblab cmdlet
 #Create a directory bob for the script module in our devpath
 New-Item -Path $Path -Name boblab -ItemType Directory
@@ -766,7 +758,7 @@ New-Item -Path $Path -Name boblab -ItemType Directory
 #Create the script module (PSM1 file) using the Out-File cmdlet
 Out-File -FilePath $Path\boblab\boblab.psm1
 
-#region code snipeit to create content for boblab.psm1
+# code snipeit to create content for boblab.psm1
 Set-Content -Path "$Path\boblab\boblab.psm1" -Value @'
 function Connect-DD-JS {
     <#
@@ -823,8 +815,6 @@ function Connect-DD-JS {
                 username="$($DDUserName)"
                 password="$($DDPassword)"
             }
-
-
             Write-Verbose "[DD] Username: $DDUserName"
             Write-Verbose "[DD] Password: $DDPassword"
 
@@ -935,7 +925,6 @@ function Get-DDUser-JS {
          } #End Process
      } #End Function
 '@
-#endregion
 
 #Or the other approach - let's now start the new new module in a new editor window
 code $Path\boblab\boblab.psm1
@@ -979,8 +968,7 @@ Get-DDUser-JS -DDfqdn "ddve-01" -DDAuthTokenValue $DDtoken
 # We've created code, build a function which is cmdlet like but NO error handling
 #################
 
-#region add errorhandling
-## please validate the DD FQDN does exist
+#region add some error handling
 function Connect-DD-JS {
     <#
     .SYNOPSIS
@@ -1075,10 +1063,6 @@ function Connect-DD-JS {
         } # END Process
     } #END Function
 
-
-## please validat that the token has 33 char
-## please validate the DD FQDN does exist with ValidateScript
-## please also enable piplie with parameter(ValueFromPipeline)
 function Get-DDUser-JS {
     <#
     .SYNOPSIS
@@ -1159,6 +1143,82 @@ function Get-DDUser-JS {
 #endregion
 
 #region get the get-command show no version fix this
+Get-Module boblabdd
+(get-Module boblabdd).Path
+# will show you that path is the module psm1 itself
+(Get-Module MicrosoftPowerShell.Po can werShell.Utillity).Path
+#Here i do see the path to psd1 to the manifest
+
+#Let‘s have a look into
+Get-Content (Get-Module MicrosoftPowerShell.Utillity).Path
+
+#Get it int a var
+$p = (Get-Module MicrosoftPowerShell.Utillity).Path
+
+#Test.ModuleManifest $p
+Do a format list
+Test.ModuleManifest $p | Fl *
+
+#Let see the folder the module resides in
+(Get-Module boblabdd).ModuleBase
+Gci (Get-Module boblabdd).ModuleBase -Filter *.psd1
+
+#% is the alias for „for-each“
+Gci (Get-Module boblabdd).ModuleBase -Filter *.psd1 | % {Test-ModuleManifest -Path $_.FullName}
+
+
+Gci (Get-Module boblabdd).ModuleBase -Filter *.psd1 | % {Test-ModuleManifest -Path $_.FullName} | fl *
+#endregion
+
+
+#region Module Manifests
+
+#All script modules should have a module manifest which is a PSD1 file and contains meta data about the module
+#New-ModuleManifest is used to create a module manifest
+#Path is the only value that's required. However, the module won't work if root module is not specified.
+#It's a good idea to specify Author and Description in case you decide to upload your module to a Nuget repository with PowerShellGet
+
+#The version of a module without a manifest is 0.0 (This is a dead givaway that the module doesn't have a manifest).
+Get-Module -Name boblabdd
+
+#Create a module manifest only specifying the required path parameter
+New-ModuleManifest -Path $env:ProgramFiles\WindowsPowerShell\Modules\boblabdd\boblabdd.psd1
+
+#Open the module manifest
+code $env:ProgramFiles\WindowsPowerShell\Modules\Modules\boblabdd\boblabdd.psd1
+
+#Reimport the module
+Remove-Module -Name boblabdd
+
+#Determine what commands are exported (none are exported because root module was not specified in the module manifest)
+Get-Command -Module boblabdd
+
+#Even after manually importing the module, no commands are exported
+Import-Module -Name boblabdd
+Get-Command -Module boblabdd
+Get-Module -Name boblabdd
+
+#Check to see if any commands are exported
+Import-Module -Name boblabdd -Force
+Get-Command -Module boblabdd
+Get-Module -Name boblabdd
+
+#Add an author and description to the manifest so the module could be uploaded to a Nuget repository with PowerShellGet
+Update-ModuleManifest -Path $env:ProgramFiles\WindowsPowerShell\Modules\boblabdd\boblabdd.psd1 -Author 'Juergen Schubert' -Description 'BobLab DD'
+
+#Check to see if any commands are exported
+Import-Module -Name boblabdd -Force
+Get-Command -Module boblabdd
+Get-Module -Name boblabdd
+
+#Add a company name to the module manifest
+Update-ModuleManifest -Path $env:ProgramFiles\WindowsPowerShell\Modules\MyModule\MyModule.psd1 -CompanyName 'mikefrobbins.com'
+
+#Add the RootModule information to the module manifest
+Update-ModuleManifest -Path $env:ProgramFiles\WindowsPowerShell\Modules\MyModule\MyModule.psd1 -RootModule MyModule
+
+
+New-ModuleManifest -Path $env:ProgramFiles\WindowsPowerShell\Modules\boblabdd\boblabdd.psd1 -RootModule MyModule -Author 'Juergen Schubert' -Description 'MyDDmodule' -CompanyName 'juergenschubert.com'
 #endregion
 
 
@@ -1179,10 +1239,10 @@ Remove-Item -Path $env:ProgramFiles\WindowsPowerShell\Modules\MyModule -Recurse 
 Remove-Module -Name JSToolkit -ErrorAction SilentlyContinue
 #boblab
 New-Item -Path $Path -Name backup -ItemType Directory
-Move-Item -Path $env:ProgramFiles\WindowsPowerShell\Modules\boblab -Destination $Path\backup
-Remove-Module -Name boblab -Force
-Get-Command -module boblab
-Uninstall-Module -Name boblab
-Remove-Item -Path $env:ProgramFiles\WindowsPowerShell\Modules\boblab -Recurse -Confirm:$false -ErrorAction SilentlyContinue
-Remove-Module -Name boblab -ErrorAction SilentlyContinue
+Move-Item -Path $env:ProgramFiles\WindowsPowerShell\Modules\boblabdd -Destination $Path\backup
+Remove-Module -Name boblabdd -Force
+Get-Command -module boblabdd
+Uninstall-Module -Name boblabdd
+Remove-Item -Path $env:ProgramFiles\WindowsPowerShell\Modules\boblabdd -Recurse -Confirm:$false -ErrorAction SilentlyContinue
+Remove-Module -Name boblabdd -ErrorAction SilentlyContinue
 #endregion
