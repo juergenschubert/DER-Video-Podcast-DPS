@@ -722,6 +722,7 @@ $PSModuleAutoLoadingPreference = ''
 $env:PSModulePath
 
 explorer.exe  $Path\boblabdd
+#region automate import module
 #Move our newly created module to a location boblab that exist in $env:PSModulePath
 move-Item -Path $Path\boblabdd -Destination $env:ProgramFiles\WindowsPowerShell\Modules\boblabdd
 #copy
@@ -757,14 +758,18 @@ Get-DDUser-JS -DDfqdn "ddve-01" -DDAuthTokenValue $DDtoken
 
 #### import the module from github into your env
 # githubcmdlet var for source of the cmdlet
-$githubcmdletpath ="C:\Users\Administrator\Documents\GitHub\DER-Video-Podcast-DPS\PowerShell cmdlet"
-import-module $githubcmdletpat\boblabdd\boblabdd.psm1 -Force -Verbose
+C:\Users\Administrator\Documents\GitHub\DELLEMC-DPS-PowerShell\cmdlet\boblab
+$githubcmdletpath ="C:\Users\Administrator\Documents\GitHub\DELLEMC-DPS-PowerShell\cmdlet"
+import-module $githubcmdletpath\boblab\boblab.psm1 -Force -Verbose
+Get-Command -Module boblab
+
+#region automate import module
 # You can copy the psm1 into a working directory
 # mkdir boblabdd
 Copy-Item -Path $githubcmdletpath\boblabdd.psm1 $Path\boblabdd\boblabdd.psm1 -Force
 import-module $Path\boblabdd\boblabdd.psm1 -Force -Verbose
 ####
-
+#endregion
 
 # We've created code, build a function which is cmdlet like but NO error handling
 #################
