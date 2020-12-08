@@ -80,13 +80,7 @@ explorer.exe https://github.com/juergenschubert/DELLEMC-DPS-ReST-api
 ## Query user on my DataDomain
 
 
-# figure out that the fqdn for a DD is working and can be resolved
-# I haved tried with DDOS 7.2 and 7.3 without problems
 
-Test-connection ddve-01
-[System.Net.Dns]::GetHostAddresses(“ddve-01“)
-$RestUrl=“ddve-01“
-Test-Connection -TargetName "$($RestUrl)" -TcpPort 443
 
 #### figure out the ReST api call you need for that job
 # jump onto Postman
@@ -113,6 +107,13 @@ get-help Invoke-RestMethod -ShowWindow
 #### PowerShell Scriptlet
 #####
 # $RestUrl = "ddve-01"
+# figure out that the fqdn for a DD is working and can be resolved
+# I haved tried with DDOS 7.2 and 7.3 without problems
+
+Test-connection ddve-01
+[System.Net.Dns]::GetHostAddresses(“ddve-01“)
+$RestUrl=“ddve-01“
+Test-Connection -TargetName "$($RestUrl)" -TcpPort 443
 #### ps1 script - Login and get the AuthToken
 $auth = @{
     username="sysadmin"
