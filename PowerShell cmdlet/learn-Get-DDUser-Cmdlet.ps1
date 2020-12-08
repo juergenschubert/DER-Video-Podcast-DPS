@@ -737,7 +737,8 @@ Connect-DD-JS
 Get-Command -Module boblabdd
 Get-Module -Name boblabdd
 ##not working
-# import-module $Path\boblabdd\boblabdd.psm1 -Force -Verbose
+import-module $Path\boblabdd\boblabdd.psm1 -Force -Verbose
+
 #Show the count of the commands that are part of MyModule
 (Get-Command -Module boblabdd).count
 
