@@ -756,6 +756,10 @@ import-module $Path\boblabdd\boblabdd.psm1 -Force -Verbose
 Dir function:Connect-DD-JS
 
 $DDtoken = Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "Password123!"
+#I can also take a more secure was for Login and Password with
+$ddcred = Read-Host -AsSecureString
+$ddcred = Get-Credential
+Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword $ddcred
 
 Dir function:Get-DDUser-JS
 $DDtoken
