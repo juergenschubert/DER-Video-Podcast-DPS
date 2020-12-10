@@ -159,7 +159,7 @@ For ($i=0; $i -le $response.User.count; $i++) {
 ####
 
 
-# from code to function
+#region from code to function
 #################
 
 #### function  - let's create functions with variables
@@ -298,11 +298,11 @@ Get-DDUser-JS -DDfqdn "ddve-01" -DDAuthTokenValue $DDtoken -verbose
 get-help Connect-DD-JS
 get-help Get-DDUser-JS
 ####
-####
+#endregion ###
 
 
 
-# enrich with some cmdlet like helpfile text
+#region enrich with some cmdlet like helpfile text
 #################
 
 #### Add some Help text into the function - still only in memory not a real cmdlet
@@ -522,11 +522,11 @@ Get-Help Get-DDUser-JS -Detailed
 Get-Help Get-DDUser-JS -Full
 ####
 
-####
+#endregion ###
 
 
 
-# let's create the boblab cmdlet
+#region let's create the boblab cmdlet
 #################
 
 #### create the boblab cmdlet with both ...also more function
@@ -696,7 +696,20 @@ function Get-DDUser-JS {
     } #End Process
 } #End Function
 
-#region Automation install of cmdlets  - OKAY now let's go with our code
+
+
+
+#region ADVANCED ### import the module from github into your env
+# githubcmdlet var for source of the cmdlet
+explorer.exe C:\Users\Administrator\Documents\GitHub\DELLEMC-DPS-PowerShell\cmdlet\boblab
+$githubcmdletpath ="C:\Users\Administrator\Documents\GitHub\DELLEMC-DPS-PowerShell\cmdlet"
+import-module $githubcmdletpath\boblab\boblab.psm1 -Force -Verbose
+Get-Command -Module boblab
+#endregion
+
+#region automate import module
+
+# Automation install of cmdlets  - OKAY now let's go with our code
 
 #Create a directory bob for the script module in our devpath
 New-Item -Path $Path -Name boblabdd -ItemType Directory
@@ -720,7 +733,7 @@ $PSModuleAutoLoadingPreference = 'All'
 $PSModuleAutoLoadingPreference = ''
 # check the module path again
 $env:PSModulePath
-#endregion
+
 
 explorer.exe  $Path\boblabdd
 #region automate import module
@@ -733,8 +746,6 @@ explorer.exe "$env:ProgramFiles\WindowsPowerShell\Modules\boblabdd"
 #endregion
 
 
-#Try to call one of the functions
-Connect-DD-JS
 #Show the commands that are part of boblab
 Get-Command -Module boblabdd
 Get-Module -Name boblabdd
@@ -754,17 +765,10 @@ $DDtoken
 Get-Help Get-DDUser-JS
 Get-DDUser-JS -DDfqdn "ddve-01" -DDAuthTokenValue $DDtoken
 ####
-####
+#endregion ###
 
 
-#### import the module from github into your env
-# githubcmdlet var for source of the cmdlet
-C:\Users\Administrator\Documents\GitHub\DELLEMC-DPS-PowerShell\cmdlet\boblab
-$githubcmdletpath ="C:\Users\Administrator\Documents\GitHub\DELLEMC-DPS-PowerShell\cmdlet"
-import-module $githubcmdletpath\boblab\boblab.psm1 -Force -Verbose
-Get-Command -Module boblab
 
-#region automate import module
 # You can copy the psm1 into a working directory
 # mkdir boblabdd
 Copy-Item -Path $githubcmdletpath\boblabdd.psm1 $Path\boblabdd\boblabdd.psm1 -Force
@@ -977,18 +981,6 @@ function Get-DDUser-JS {
 #### get the get-command show no version fix this
 get-command Connect-DD-JS
 ####
-Function Get-LetterCount
-
-{
-
-     Param ([string]$string)
-
-      Write-Host -ForegroundColor Cyan string length is $string.Length
-       $string | clip.exe
-} # End Function Get-LetterCount
-Get-LetterCount $DDtoken
-
-
 
 # code snipeit to create content for boblabdd.psm1
 Set-Content -Path "$Path\boblabdd\boblabdd.psm1" -Value @'
@@ -1158,24 +1150,6 @@ function Get-DDUser-JS {
      } #End Function
 '@
 
-
-#Or the other approach - let's now start the new new module in a new editor window
-code $Path\boblabdd\boblabdd.psm1
-#Copy and paste both created function into the new file
-#save it
-
-explorer.exe $env:ProgramFiles\WindowsPowerShell\Modules
-#Move our newly created boblab module to a location that exist in $env:PSModulePath
-Move-Item -Path $Path\boblab -Destination $env:ProgramFiles\WindowsPowerShell\Modules -force
-
-# Check if we do see both functions / now cmdlets
-Get-Command -module boblabdd
-
-# when your autoload doesn't work import by hand
-Import-Module -Name boblabdd -Force
-#remove the module
-
-
 ####
 
 #Show the commands that are part of boblab
@@ -1210,7 +1184,7 @@ Get-LetterCount $DDtoken
 ####
 
 
-# We've created code, build a function which is cmdlet like but NO error handling
+#region We've created code, build a function which is cmdlet like but NO error handling
 #################
 
 #### add some error handling
@@ -1385,6 +1359,18 @@ function Get-DDUser-JS {
          } #End Process
 } #End Function
 
+#endregion
+
+
+
+
+
+#region ### Module Manifests
+
+#All script modules should have a module manifest which is a PSD1 file and contains meta data about the module
+#New-ModuleManifest is used to create a module manifest
+#Path is the only value that's required. However, the module won't work if root module is not specified.
+#It's a good idea to specify Author and Description in case you decide to upload your module to a Nuget repository with PowerShellGet
 # get the get-command show no version fix this
 Get-Module boblabdd
 (Get-Module boblabdd).Path
@@ -1412,14 +1398,6 @@ gci (Get-Module boblabdd).ModuleBase -Filter *.psd1 | % {Test-ModuleManifest -Pa
 
 gci (Get-Module boblabdd).ModuleBase -Filter *.psd1 | % {Test-ModuleManifest -Path $_.FullName} | fl *
 ####
-
-
-#### Module Manifests
-
-#All script modules should have a module manifest which is a PSD1 file and contains meta data about the module
-#New-ModuleManifest is used to create a module manifest
-#Path is the only value that's required. However, the module won't work if root module is not specified.
-#It's a good idea to specify Author and Description in case you decide to upload your module to a Nuget repository with PowerShellGet
 
 #The version of a module without a manifest is 0.0 (This is a dead givaway that the module doesn't have a manifest).
 Get-Module -Name boblabdd
@@ -1455,15 +1433,15 @@ Get-Command -Module boblabdd
 Get-Module -Name boblabdd
 
 #Add a company name to the module manifest
-Update-ModuleManifest -Path "C:\Program Files (x86)\WindowsPowerShell\Modules\boblabdd\boblabdd
+Update-ModuleManifest -Path "C:\Program Files (x86)\WindowsPowerShell\Modules\boblabdd\boblabdd"
 #Add the RootModule information to the module manifest
 Update-ModuleManifest -Path "C:\Program Files (x86)\WindowsPowerShell\Modules\boblabdd\boblabdd.psd1" -RootModule boblabdd
 
 New-ModuleManifest -Path "C:\Program Files (x86)\WindowsPowerShell\Modules\boblabdd\boblabdd.psd1" -RootModule MyModule -Author 'Juergen Schubert' -Description 'MyDDmodule' -CompanyName 'juergenschubert.com'
-####
+#endregion ###
 
 
-#### Cleanup
+#region ### Cleanup
 
 Get-Item -Path Function:\Connect-DD-JS
 Get-ChildItem -Path Function:\Connect-DD-JS
@@ -1486,4 +1464,4 @@ Get-Command -module boblabdd
 Uninstall-Module -Name boblabdd
 Remove-Item -Path $env:ProgramFiles\WindowsPowerShell\Modules\boblabdd -Recurse -Confirm:$false -ErrorAction SilentlyContinue
 Remove-Module -Name boblabdd -ErrorAction SilentlyContinue
-####
+#endregion ###
