@@ -113,7 +113,7 @@ $RestUrl=“ddve-01“
 Test-Connection -TargetName "$($RestUrl)" -TcpPort 443
 
 
-#### PowerShell Scriptlet
+#region ### PowerShell Scriptlet
 #####
 # $RestUrl = "ddve-01"
 
@@ -156,7 +156,7 @@ For ($i=0; $i -le $response.User.count; $i++) {
     }
 
 ####
-####
+#endregion###
 
 
 #region from code to function
@@ -299,7 +299,6 @@ get-help Connect-DD-JS
 get-help Get-DDUser-JS
 ####
 #endregion ###
-
 
 
 #region enrich with some cmdlet like helpfile text
@@ -525,7 +524,6 @@ Get-Help Get-DDUser-JS -Full
 #endregion ###
 
 
-
 #region let's create the boblab cmdlet
 #################
 
@@ -695,8 +693,7 @@ function Get-DDUser-JS {
         Write-Verbose $Headers1
     } #End Process
 } #End Function
-
-
+#endregion
 
 
 #region ADVANCED ### import the module from github into your env
@@ -778,7 +775,7 @@ import-module $Path\boblabdd\boblabdd.psm1 -Force -Verbose
 
 # We've created code, build a function which is cmdlet like but NO error handling
 #################
-#### error handling in function
+#region ### error handling in function
 
 ## TBD please also enable pipline with parameter(ValueFromPipeline)
 
@@ -1181,7 +1178,7 @@ Function Get-LetterCount
 } # End Function Get-LetterCount
 Get-LetterCount $DDtoken
 
-####
+#endregion ###
 
 
 #region We've created code, build a function which is cmdlet like but NO error handling
@@ -1360,9 +1357,6 @@ function Get-DDUser-JS {
 } #End Function
 
 #endregion
-
-
-
 
 
 #region ### Module Manifests
