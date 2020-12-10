@@ -230,8 +230,8 @@ function Connect-DD-JS {
 } #END Function
 
 # See what we have created... so for in memory only
-####
-#### Check your Connect-DD-JS function
+#
+# Check your Connect-DD-JS function
 Dir function:Connect-DD-JS
 
 Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "Password123!"
@@ -707,7 +707,7 @@ Out-File -FilePath $Path\boblabdd\boblabdd.psm1
 #let's now start the new new module in a new editor window
 code $Path\boblabdd\boblabdd.psm1
 
-#### advanced move to a location and autoload
+#region ### advanced move to a location and autoload
 
 #If the PSModuleAutoLoadingPreference has been changed from the default, it can impact module autoloading.
 $PSModuleAutoloadingPreference
@@ -720,6 +720,7 @@ $PSModuleAutoLoadingPreference = 'All'
 $PSModuleAutoLoadingPreference = ''
 # check the module path again
 $env:PSModulePath
+#endregion
 
 explorer.exe  $Path\boblabdd
 #region automate import module
