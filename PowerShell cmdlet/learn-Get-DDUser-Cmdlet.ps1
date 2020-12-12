@@ -696,57 +696,10 @@ function Get-DDUser-JS {
 #endregion
 
 
-#region ADVANCED ### import the module from github into your env
-# githubcmdlet var for source of the cmdlet
-explorer.exe C:\Users\Administrator\Documents\GitHub\DELLEMC-DPS-PowerShell\cmdlet\boblab
-$githubcmdletpath ="C:\Users\Administrator\Documents\GitHub\DELLEMC-DPS-PowerShell\cmdlet"
-import-module $githubcmdletpath\boblab\boblab.psm1 -Force -Verbose
-Get-Command -Module boblab
-#endregion
-
-#region automate import module
-
-# Automation install of cmdlets  - OKAY now let's go with our code
-
-#Create a directory bob for the script module in our devpath
-New-Item -Path $Path -Name boblabdd -ItemType Directory
-
-#Create the script module (PSM1 file) using the Out-File cmdlet
-Out-File -FilePath $Path\boblabdd\boblabdd.psm1
-
-#let's now start the new new module in a new editor window
-code $Path\boblabdd\boblabdd.psm1
-
-#region ### advanced move to a location and autoload
-
-#If the PSModuleAutoLoadingPreference has been changed from the default, it can impact module autoloading.
-$PSModuleAutoloadingPreference
-
-#show the helpfile in a external window
-help about_Preference_Variables -showwindow
-
-#enable autoload of all modules in the module path
-$PSModuleAutoLoadingPreference = 'All'
-$PSModuleAutoLoadingPreference = ''
-# check the module path again
-$env:PSModulePath
-
-
-explorer.exe  $Path\boblabdd
-#region automate import module
-#Move our newly created module to a location boblab that exist in $env:PSModulePath
-move-Item -Path $Path\boblabdd -Destination $env:ProgramFiles\WindowsPowerShell\Modules\boblabdd
-#copy
-Copy-Item -Path $Path\boblabdd\boblabdd.psm1 -Destination $env:ProgramFiles\WindowsPowerShell\Modules\boblabdd\boblabdd.psm1
-#let's see if it is there
-explorer.exe "$env:ProgramFiles\WindowsPowerShell\Modules\boblabdd"
-#endregion
-
-
 #Show the commands that are part of boblab
 Get-Command -Module boblabdd
 Get-Module -Name boblabdd
-##not working
+#not working - sure you need to import !!!
 import-module $Path\boblabdd\boblabdd.psm1 -Force -Verbose
 
 #Show the count of the commands that are part of MyModule
@@ -766,17 +719,9 @@ $DDtoken
 Get-Help Get-DDUser-JS
 Get-DDUser-JS -DDfqdn "ddve-01" -DDAuthTokenValue $DDtoken
 ####
-#endregion ###
 
 
-
-# You can copy the psm1 into a working directory
-# mkdir boblabdd
-Copy-Item -Path $githubcmdletpath\boblabdd.psm1 $Path\boblabdd\boblabdd.psm1 -Force
-import-module $Path\boblabdd\boblabdd.psm1 -Force -Verbose
-####
-#endregion
-
+# Enhance this function 
 # We've created code, build a function which is cmdlet like but NO error handling
 #################
 #region ### error handling in function
@@ -987,123 +932,136 @@ get-command Connect-DD-JS
 Set-Content -Path "$Path\boblabdd\boblabdd.psm1" -Value @'
 function Connect-DD-JS {
     <#
-    .SYNOPSIS
-        Connect to a DataDomain you specify and returns the authtoken for further login
+.SYNOPSIS
+    Connect to a DataDomain you specify and returns the authtoken for further login
 
-    .DESCRIPTION
-        Connect-DD-JS is a function which logs into a DataDomain with sysadmin and password
-        and returns the authtoken which can be used for other ReST api call.
+.DESCRIPTION
+    Connect-DD-JS is a function which logs into a DataDomain with sysadmin and password
+    and returns the authtoken which can be used for other ReST api call.
 
-    .PARAMETER Name
-        DDfqdn        DataDomain FQDN
-        DDUserName    User Name for DD
-        DDPassword    Password for this user
+.PARAMETER Name
+    DDfqdn        DataDomain FQDN
+    DDUserName    User Name for DD
+    DDPassword    Password for this user
 
-    .PARAMETER Path
-        local path
+.PARAMETER Path
+    local path
 
-    .EXAMPLE
-        Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "changeme"
+.EXAMPLE
+    Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "changeme"
 
-        $DDtoken = Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "changeme"
+    $DDtoken = Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "changeme"
 
-        Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "changeme" -verbose
+    Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "changeme" -verbose
 
-    .INPUTS
-        System.String[]
+.INPUTS
+    System.String[]
 
-    .OUTPUTS
-        DataDomain Auth Token
+.OUTPUTS
+    DataDomain Auth Token
 
-    .NOTES
-        Author:  Juergen Schubert
-        Website: http://juergenschubert.com
-        Twitter: @NextGenBackup
-    #>
-        [CmdletBinding()]
-        param (
-            [Parameter(Mandatory)]
-            [string]$DDfqdn,
-            [Parameter(Mandatory)]
-            [string]$DDUserName,
-            [Parameter(Mandatory)]
-            [string]$DDPassword
-        )
-
-        begin {
-
-        } #END BEGIN
-
-        process {
-
-            $auth = @{
-                username="$($DDUserName)"
-                password="$($DDPassword)"
+.NOTES
+    Author:  Juergen Schubert
+    Website: http://juergenschubert.com
+    Twitter: @NextGenBackup
+#>
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory)]
+        [ValidateScript({
+            if (Test-Connection -TargetName "$($_)" -TcpPort 443)
+            {
+                $true
+            } else {
+                throw "$_ is invalid. the FQDN cannot be resolved. Please correct."   
             }
-            Write-Verbose "[DD] Username: $DDUserName"
-            Write-Verbose "[DD] Password: $DDPassword"
+            }) 
+        ]
+        [string]$DDfqdn,
+        [Parameter(Mandatory)]
+        [string]$DDUserName,
+        [Parameter(Mandatory)]
+        [string]$DDPassword
+    )
 
-            Write-Verbose "[DD] Login to get the access token" -InformationAction Continue
-            [System.Net.ServicePointManager]::SecurityProtocol =[System.Net.SecurityProtocolType]::Tls12
-            Write-Verbose "[DD] FQDN $DDfqdn"
-            #LOGIN TO DD REST API
-            Write-Verbose "[DD] Login to get the access token"
+    begin {
 
-            $response = Invoke-RestMethod -uri "https://$($DDfqdn):3009/api/v1.0/auth" `
-                -Method 'POST' `
-                -ContentType 'application/json' `
-                -Body (ConvertTo-Json $auth) `
-                -SkipCertificateCheck `
-                -ResponseHeadersVariable Headers
+    } #END BEGIN
 
-            $DDAutoTokenValue = $Headers['X-DD-AUTH-TOKEN'][0]
-            $mytoken = @{
-                'X-DD-AUTH-TOKEN'=$Headers['X-DD-AUTH-TOKEN'][0]
-            }
+    process {
+
+        $auth = @{
+            username = "$($DDUserName)"
+            password = "$($DDPassword)"
+        }
 
 
-            Write-Verbose "[DEBUG] X-DD-Auth-Token"
-            Write-Verbose "$Headers['X-DD-AUTH-TOKEN']"
-            Write-Verbose "[DEBUG] token"
-            Write-Verbose $mytoken
-            Write-Verbose "[DEBUG] response body"
-            Write-Verbose $response | ConvertTo-Json
-            Write-Verbose "[DEBUG] response Header"
-            Write-Verbose $Headers
-            $global:DDAuthToken = $mytoken
+        Write-Verbose "[DD] Username: $DDUserName"
+        Write-Verbose "[DD] Password: $DDPassword"
 
-            return $DDAutoTokenValue
+        Write-Verbose "[DD] Login to get the access token" -InformationAction Continue
+        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12
+        Write-Verbose "[DD] FQDN $DDfqdn"
+        #LOGIN TO DD REST API
+        Write-Verbose "[DD] Login to get the access token"
 
-        } # END Process
-    } #END Function
+        $response = Invoke-RestMethod -uri "https://$($DDfqdn):3009/api/v1.0/auth" `
+            -Method 'POST' `
+            -ContentType 'application/json' `
+            -Body (ConvertTo-Json $auth) `
+            -SkipCertificateCheck `
+            -ResponseHeadersVariable Headers
 
+        $DDAutoTokenValue = $Headers['X-DD-AUTH-TOKEN'][0]
+        $mytoken = @{
+            'X-DD-AUTH-TOKEN' = $Headers['X-DD-AUTH-TOKEN'][0]
+        }
+
+
+        Write-Verbose "[DEBUG] X-DD-Auth-Token"
+        Write-Verbose "$Headers['X-DD-AUTH-TOKEN']"
+        Write-Verbose "[DEBUG] token"
+        Write-Verbose $mytoken
+        Write-Verbose "[DEBUG] response body"
+        Write-Verbose $response | ConvertTo-Json
+        Write-Verbose "[DEBUG] response Header"
+        Write-Verbose $Headers
+        $global:DDAuthToken = $mytoken
+        $measureObject = $DDAutoTokenValue | Measure-Object -Character;
+        $counttokenchar = $measureObject.Character;
+
+        return $DDAutoTokenValue
+
+    } # END Process
+} #END Function
+####
 function Get-DDUser-JS {
     <#
     .SYNOPSIS
         Connect to a DataDomain you specify and returns the local User
-
+    
     .DESCRIPTION
-        Get-DDUser-JS is a function which logs into a DataDomain with the provided authtoken
+        Get-DDUser-JS is a function which logs into a DataDomain with the provided authtoken 
         you shoudw received from Connect-DD-JS and returns a list of local DD user.
-
+     
     .PARAMETER Name
         DDfqdn  DataDomain FQDN
         DDtoken AuthToken for login to the DD
-
+     
     .PARAMETER Path
         local path
-
+    
     .EXAMPLE
-        Get-DDUser-JS -DDfqdn "ddve-01" -DDAuthTokenValue $DDtoken
-
-        Get-DDUser-JS -DDfqdn "ddve-01" -DDAuthTokenValue $DDtoken -verbose
-
+        Get-DDUser-JS -DDfqdn "ddve-1.vlab.local" -DDAuthTokenValue $DDtoken 
+        
+        Get-DDUser-JS -DDfqdn "ddve-1.vlab.local" -DDAuthTokenValue $DDtoken -verbose
+    
     .INPUTS
         System.String[]
-
+     
     .OUTPUTS
         returns the local user name on the DataDomain System
-
+     
     .NOTES
         Author:  Juergen Schubert
         Website: http://juergenschubert.com
@@ -1112,22 +1070,40 @@ function Get-DDUser-JS {
         [CmdletBinding()]
             param (
                 [Parameter(Mandatory)]
+                [ValidateScript({
+                    if (Test-Connection -TargetName "$($_)" -TcpPort 443)
+                    {
+                        $true
+                    } else {
+                        throw "$_ is invalid. the FQDN cannot be resolved. Please correct."   
+                    }
+                    }) 
+                ]
                 [string]$DDfqdn,
                 [Parameter(Mandatory)]
+                [ValidateScript({
+                    if($DDAuthTokenValue.Length -eq 33)
+                    {
+                        $true
+                    } else {
+                        throw "$_ is invalid Authcode. Please provide a valid authcode for DataDomain. $($DDAuthTokenValue.Length) char is the wrong length. We need 33"   
+                    }
+                    }) 
+                ]
                 [string]$DDAuthTokenValue
          )
-
+         
          begin {
-
+     
          } #END BEGIN
-
+     
          process {
              $RestUrl = $DDfqdn
              Write-Verbose "[DEBUG] token"
              Write-Verbose $DDAuthTokenValue
              Write-Verbose "[Debug] FQDN of the DD"
              Write-Verbose "$DDfqdn"
-
+     
              $authtoken = @{
                  'X-DD-AUTH-TOKEN'= $DDAuthTokenValue
              }
@@ -1137,22 +1113,24 @@ function Get-DDUser-JS {
                  -Headers $authtoken `
                  -SkipCertificateCheck  `
                  -ResponseHeadersVariable Headers1
-
+     
              For ($i=0; $i -le $response1.User.count; $i++) {
                    write-host $response1.User[$i].name
              }
-
+             
              Write-Verbose "[DEBUG] Response User Count: $response1.User.count "
              Write-Verbose "[DEBUG] response body"
              Write-Verbose $response1
              Write-Verbose "[DEBUG] response Header"
              Write-Verbose $Headers1
          } #End Process
-     } #End Function
+} #End Function
 '@
 
-####
+#not working - sure you need to import !!!
+import-module $Path\boblabdd\boblabdd.psm1 -Force -Verbose
 
+####
 #Show the commands that are part of boblab
 Get-Command -Module boblabdd
 Get-Module -Name boblabdd
@@ -1171,196 +1149,7 @@ $DDtoken
 Get-Help Get-DDUser-JS
 Get-DDUser-JS -DDfqdn "ddve-01" -DDAuthTokenValue $DDtoken
 
-Function Get-LetterCount
 
-{
-
-     Param ([string]$string)
-
-      Write-Host -ForegroundColor Cyan string length is $string.Length
-       $string | clip.exe
-} # End Function Get-LetterCount
-Get-LetterCount $DDtoken
-
-#endregion ###
-
-
-#region We've created code, build a function which is cmdlet like but NO error handling
-#################
-
-#### add some error handling
-function Connect-DD-JS {
-    <#
-    .SYNOPSIS
-        Connect to a DataDomain you specify and returns the authtoken for further login
-
-    .DESCRIPTION
-        Connect-DD-JS is a function which logs into a DataDomain with sysadmin and password
-        and returns the authtoken which can be used for other ReST api call.
-
-    .PARAMETER Name
-        DDfqdn        DataDomain FQDN
-        DDUserName    User Name for DD
-        DDPassword    Password for this user
-
-    .PARAMETER Path
-        local path
-
-    .EXAMPLE
-        Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "changeme"
-
-        $DDtoken = Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "changeme"
-
-        Connect-DD-JS -DDfqdn "ddve-01" -DDUserName "sysadmin" -DDPassword "changeme" -verbose
-
-    .INPUTS
-        System.String[]
-
-    .OUTPUTS
-        DataDomain Auth Token
-
-    .NOTES
-        Author:  Juergen Schubert
-        Website: http://juergenschubert.com
-        Twitter: @NextGenBackup
-    #>
-        [CmdletBinding()]
-        param (
-            [Parameter(Mandatory)]
-            [string]$DDfqdn,
-            [Parameter(Mandatory)]
-            [string]$DDUserName,
-            [Parameter(Mandatory)]
-            [string]$DDPassword
-        )
-
-        begin {
-
-        } #END BEGIN
-
-        process {
-
-            $auth = @{
-                username="$($DDUserName)"
-                password="$($DDPassword)"
-            }
-
-
-            Write-Verbose "[DD] Username: $DDUserName"
-            Write-Verbose "[DD] Password: $DDPassword"
-
-            Write-Verbose "[DD] Login to get the access token" -InformationAction Continue
-            [System.Net.ServicePointManager]::SecurityProtocol =[System.Net.SecurityProtocolType]::Tls12
-            Write-Verbose "[DD] FQDN $DDfqdn"
-            #LOGIN TO DD REST API
-            Write-Verbose "[DD] Login to get the access token"
-
-            $response = Invoke-RestMethod -uri "https://$($DDfqdn):3009/api/v1.0/auth" `
-                -Method 'POST' `
-                -ContentType 'application/json' `
-                -Body (ConvertTo-Json $auth) `
-                -SkipCertificateCheck `
-                -ResponseHeadersVariable Headers
-
-            $DDAutoTokenValue = $Headers['X-DD-AUTH-TOKEN'][0]
-            $mytoken = @{
-                'X-DD-AUTH-TOKEN'=$Headers['X-DD-AUTH-TOKEN'][0]
-            }
-
-
-            Write-Verbose "[DEBUG] X-DD-Auth-Token"
-            Write-Verbose "$Headers['X-DD-AUTH-TOKEN']"
-            Write-Verbose "[DEBUG] token"
-            Write-Verbose $mytoken
-            Write-Verbose "[DEBUG] response body"
-            Write-Verbose $response | ConvertTo-Json
-            Write-Verbose "[DEBUG] response Header"
-            Write-Verbose $Headers
-            $global:DDAuthToken = $mytoken
-
-            return $DDAutoTokenValue
-
-        } # END Process
-    } #END Function
-
-function Get-DDUser-JS {
-    <#
-    .SYNOPSIS
-        Connect to a DataDomain you specify and returns the local User
-
-    .DESCRIPTION
-        Get-DDUser-JS is a function which logs into a DataDomain with the provided authtoken
-        you shoudw received from Connect-DD-JS and returns a list of local DD user.
-
-    .PARAMETER Name
-        DDfqdn  DataDomain FQDN
-        DDtoken AuthToken for login to the DD
-
-    .PARAMETER Path
-        local path
-
-    .EXAMPLE
-        Get-DDUser-JS -DDfqdn "ddve-01" -DDAuthTokenValue $DDtoken
-
-        Get-DDUser-JS -DDfqdn "ddve-01" -DDAuthTokenValue $DDtoken -verbose
-
-    .INPUTS
-        System.String[]
-
-    .OUTPUTS
-        returns the local user name on the DataDomain System
-
-    .NOTES
-        Author:  Juergen Schubert
-        Website: http://juergenschubert.com
-        Twitter: @NextGenBackup
-    #>
-    [CmdletBinding()]
-            param (
-                [Parameter(Mandatory,HelpMessage='Please enter any FQDN of your DataDomain')]
-                [ValidateScript({(Test-NetConnection -ComputerName $DDfqdn -Port 443).TcpTestSucceeded})]
-                [ValidateNotNullOrEmpty()]
-                [string]$DDfqdn,
-                [Parameter(Mandatory,HelpMessage='Enter an DD Auth token!')]
-                [Parameter(ValueFromPipeline)]
-                [ValidateLength(33,33)]
-                [string]$DDAuthTokenValue
-         )
-
-         begin {
-
-         } #END BEGIN
-
-         process {
-             $RestUrl = $DDfqdn
-             Write-Verbose "[DEBUG] token"
-             Write-Verbose $DDAuthTokenValue
-             Write-Verbose "[Debug] FQDN of the DD"
-             Write-Verbose "$DDfqdn"
-
-             $authtoken = @{
-                 'X-DD-AUTH-TOKEN'= $DDAuthTokenValue
-             }
-             $response1 = Invoke-RestMethod "https://$($RestUrl):3009/rest/v1.0/dd-systems/0/users" `
-                 -Method 'Get'  `
-                 -ContentType 'application/json' ` `
-                 -Headers $authtoken `
-                 -SkipCertificateCheck  `
-                 -ResponseHeadersVariable Headers1
-
-             For ($i=0; $i -le $response1.User.count; $i++) {
-                   write-host $response1.User[$i].name
-             }
-
-             Write-Verbose "[DEBUG] Response User Count: $response1.User.count "
-             Write-Verbose "[DEBUG] response body"
-             Write-Verbose $response1
-             Write-Verbose "[DEBUG] response Header"
-             Write-Verbose $Headers1
-         } #End Process
-} #End Function
-
-#endregion
 
 
 #region ### Module Manifests
@@ -1370,96 +1159,15 @@ function Get-DDUser-JS {
 #Path is the only value that's required. However, the module won't work if root module is not specified.
 #It's a good idea to specify Author and Description in case you decide to upload your module to a Nuget repository with PowerShellGet
 # get the get-command show no version fix this
-Get-Module boblabdd
-(Get-Module boblabdd).Path
-# will show you that path is the module psm1 itself
-(Get-Module Microsoft.PowerShell.Utility).Path
-#Here i do see the path to psd1 to the manifest
-
-#Let‘s have a look into
-Get-Content (Get-Module Microsoft.PowerShell.Utility).Path
-
-#Get it int a var
-$p = (Get-Module Microsoft.PowerShell.Utility).Path
-
-# Test ModuleManifest $p
-# Do a format list
-Test-ModuleManifest $p | Fl *
-
-#Let see the folder the module resides in
-(Get-Module boblabdd).ModuleBase
-gci (Get-Module boblabdd).ModuleBase -Filter *.psd1
-
-#% is the alias for „for-each“
-gci (Get-Module boblabdd).ModuleBase -Filter *.psd1 | % {Test-ModuleManifest -Path $_.FullName}
-
-
-gci (Get-Module boblabdd).ModuleBase -Filter *.psd1 | % {Test-ModuleManifest -Path $_.FullName} | fl *
-####
-
-#The version of a module without a manifest is 0.0 (This is a dead givaway that the module doesn't have a manifest).
-Get-Module -Name boblabdd
-
-#Create a module manifest only specifying the required path parameter
-New-ModuleManifest -Path "C:\Program Files (x86)\WindowsPowerShell\Modules\boblabdd\boblabdd.psd1"
-
-#Open the module manifest
-code "C:\Program Files (x86)\WindowsPowerShell\Modules\boblabdd\boblabdd.psd1"
+New-ModuleManifest -Path "$($Path)\boblabdd\boblabdd.psd1" -RootModule boblabdd.psm1 -Author 'Juergen Schubert' -Description 'MyDDmodule' -CompanyName 'juergenschubert.com'
 
 #Reimport the module
 Remove-Module -Name boblabdd
 
-#Determine what commands are exported (none are exported because root module was not specified in the module manifest)
-Get-Command -Module boblabdd
-
-#Even after manually importing the module, no commands are exported
-Import-Module -Name boblabdd
-Get-Command -Module boblabdd
-Get-Module -Name boblabdd
-
 #Check to see if any commands are exported
-Import-Module -Name boblabdd -Force
+Import-Module -Name $($Path)\boblabdd\boblabdd.psd1 -Force
 Get-Command -Module boblabdd
 Get-Module -Name boblabdd
 
-#Add an author and description to the manifest so the module could be uploaded to a Nuget repository with PowerShellGet
-Update-ModuleManifest -Path "C:\Program Files (x86)\WindowsPowerShell\Modules\boblabdd\boblabdd.psd1" -Author 'Juergen Schubert' -Description 'BobLab DD'
-
-#Check to see if any commands are exported
-Import-Module -Name boblabdd -Force
-Get-Command -Module boblabdd
-Get-Module -Name boblabdd
-
-#Add a company name to the module manifest
-Update-ModuleManifest -Path "C:\Program Files (x86)\WindowsPowerShell\Modules\boblabdd\boblabdd"
-#Add the RootModule information to the module manifest
-Update-ModuleManifest -Path "C:\Program Files (x86)\WindowsPowerShell\Modules\boblabdd\boblabdd.psd1" -RootModule boblabdd
-
-New-ModuleManifest -Path "C:\Program Files (x86)\WindowsPowerShell\Modules\boblabdd\boblabdd.psd1" -RootModule MyModule -Author 'Juergen Schubert' -Description 'MyDDmodule' -CompanyName 'juergenschubert.com'
-#endregion ###
-
-
-#region ### Cleanup
-
-Get-Item -Path Function:\Connect-DD-JS
-Get-ChildItem -Path Function:\Connect-DD-JS
-
-# Remove
-Remove-Item -Path Function:\Connect-DD-JS
-
-Set-Location -Path C:\
-$Path = 'C:\Demo'
-Remove-Module -Name MyModule -ErrorAction SilentlyContinue
-Remove-Item -Path "$Path\Get-JSPSVersion.ps1", "$Path\Get-JSComputerName.ps1" -ErrorAction SilentlyContinue
-Remove-Item -Path $env:ProgramFiles\WindowsPowerShell\Modules\MyModule -Recurse -Confirm:$false -ErrorAction SilentlyContinue
-#JSToolkit
-Remove-Module -Name JSToolkit -ErrorAction SilentlyContinue
-#boblab
-New-Item -Path $Path -Name backup -ItemType Directory
-Move-Item -Path $env:ProgramFiles\WindowsPowerShell\Modules\boblabdd -Destination $Path\backup
-Remove-Module -Name boblabdd -Force
-Get-Command -module boblabdd
-Uninstall-Module -Name boblabdd
-Remove-Item -Path $env:ProgramFiles\WindowsPowerShell\Modules\boblabdd -Recurse -Confirm:$false -ErrorAction SilentlyContinue
-Remove-Module -Name boblabdd -ErrorAction SilentlyContinue
-#endregion ###
+# you are ready to share
+explorer.exe $Path/boblabdd
